@@ -91,7 +91,7 @@ func (m *Mapper) Map() error {
 	defer writer.Close()
 
 	csvIn := csv.NewReader(reader)
-	csvIn.ReuseRecord = true
+	csvIn.ReuseRecord = false
 
 	var header []string
 
@@ -101,8 +101,9 @@ func (m *Mapper) Map() error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%v\n", header)
 	}
+	// from now on we can reuse the record
+	csvIn.ReuseRecord = true
 
 	// Read all records
 	for {
@@ -116,6 +117,9 @@ func (m *Mapper) Map() error {
 		out := make(map[string]interface{})
 		for i := range record {
 			key := fmt.Sprintf("%d", i)
+			if m.Named {
+				key = header[i]
+			}
 			var (
 				v   ColumnConfiguration
 				val any
@@ -153,6 +157,9 @@ func (m *Mapper) Map() error {
 		_, err = writer.Write(d)
 		if err != nil {
 			return err
+		}
+		if m.Out == "-" {
+			_, _ = writer.Write([]byte("\n"))
 		}
 	}
 

@@ -1,14 +1,14 @@
 {
   "mapping": {
-    "0": {
+    "id": {
       "property": "property1",
       "type": "int"
     },
-    "1": {
+    "text": {
       "property": "property2.property3",
       "type": "string"
     },
-    "2": {
+    "value": {
       "property": "property4",
       "type": "float"
     }
