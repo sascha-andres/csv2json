@@ -1,0 +1,16 @@
+{
+  "mapping": {
+    "0": {
+      "property": "property1",
+      "type": "int"
+    },
+    "1": {
+      "property": "property2.property3",
+      "type": "string"
+    },
+    "2": {
+      "property": "property4",
+      "type": "float"
+    }
+  }
+}
