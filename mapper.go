@@ -104,7 +104,13 @@ func (m *Mapper) Map() error {
 	}
 	// from now on we can reuse the record
 	csvIn.ReuseRecord = true
-
+	if m.Array {
+		_, err = writer.Write([]byte("[\n"))
+		if err != nil {
+			return err
+		}
+	}
+	recordNumber := 0
 	// Read all records
 	for {
 		record, err := csvIn.Read()
@@ -144,6 +150,13 @@ func (m *Mapper) Map() error {
 				}
 				val = f
 				break
+			case "bool":
+				b, err := strconv.ParseBool(record[i])
+				if err != nil {
+					return err
+				}
+				val = b
+				break
 			default:
 				val = record[i]
 				break
@@ -154,13 +167,20 @@ func (m *Mapper) Map() error {
 		if err != nil {
 			return err
 		}
+		if recordNumber > 0 {
+			if m.Array {
+				_, _ = writer.Write([]byte(","))
+			}
+			_, _ = writer.Write([]byte("\n"))
+		}
 		_, err = writer.Write(d)
 		if err != nil {
 			return err
 		}
-		if m.Out == "-" {
-			_, _ = writer.Write([]byte("\n"))
-		}
+		recordNumber++
+	}
+	if m.Array {
+		_, _ = writer.Write([]byte("\n]"))
 	}
 
 	return nil
@@ -168,18 +188,23 @@ func (m *Mapper) Map() error {
 
 // setValue creates and maps nested dictionaries based on a hierarchy of keys, assigning a final value.
 func setValue(hierarchy []string, value any, data map[string]interface{}) map[string]interface{} {
-	v := setValueInternal(hierarchy, value)
+	v := setValueInternal(hierarchy, value, data)
 	data[hierarchy[0]] = v
 	return data
 }
 
 // setValueInternal recursively creates and maps nested dictionaries based on a hierarchy of keys, assigning a final value.
-func setValueInternal(hierarchy []string, value any) any {
+func setValueInternal(hierarchy []string, value any, inside map[string]any) any {
 	if len(hierarchy) == 1 {
 		return value
 	}
-	v := make(map[string]interface{})
-	v[hierarchy[1]] = setValueInternal(hierarchy[1:], value)
+	v := make(map[string]any)
+	if val, ok := inside[hierarchy[0]]; ok {
+		if reflected, ok := val.(map[string]any); ok {
+			v = reflected
+		}
+	}
+	v[hierarchy[1]] = setValueInternal(hierarchy[1:], value, v)
 	return v
 }
 

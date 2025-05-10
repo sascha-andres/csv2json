@@ -11,6 +11,10 @@
     "value": {
       "property": "property4",
       "type": "float"
+    },
+    "b": {
+      "property": "property2.property5",
+      "type": "bool"
     }
   }
 }
