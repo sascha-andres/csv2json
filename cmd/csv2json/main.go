@@ -1,7 +1,13 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
+
 	"github.com/sascha-andres/reuse/flag"
+
+	"gopkg.in/yaml.v3"
+	"github.com/BurntSushi/toml"
 
 	"github.com/sascha-andres/csv2json"
 )
@@ -12,6 +18,7 @@ var (
 	array       bool
 	named       bool
 	mappingFile string
+	outputType  string
 )
 
 // init initializes the command-line flags and environment variables.
@@ -22,6 +29,7 @@ func init() {
 	flag.BoolVar(&array, "array", false, "output as array")
 	flag.BoolVar(&named, "named", false, "output as named")
 	flag.StringVar(&mappingFile, "mapping", "mapping.json", "mapping file")
+	flag.StringVar(&outputType, "type", "json", "output type, one of json, yaml or toml")
 }
 
 // main parses flags, executes the application logic via the run function, and handles any errors by panicking.
@@ -36,7 +44,21 @@ func main() {
 // run initializes a Mapper instance with provided configurations and processes CSV input into JSON format.
 // It returns an error if any step in the process fails.
 func run() error {
+	marshalWith := json.Marshal
+	switch outputType {
+	case "json":
+		break
+	case "yaml":
+		marshalWith = yaml.Marshal
+		break
+	case "toml":
+		marshalWith = toml.Marshal
+		break
+	default:
+		return errors.New("invalid output type")
+	}
 	m, err := csv2json.NewMapper(
+		csv2json.WithMarshalWith(marshalWith),
 		csv2json.WithOut(out),
 		csv2json.WithArray(array),
 		csv2json.WithIn(in),
