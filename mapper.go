@@ -104,7 +104,13 @@ func (m *Mapper) Map() error {
 	}
 	// from now on we can reuse the record
 	csvIn.ReuseRecord = true
-
+	if m.Array {
+		_, err = writer.Write([]byte("[\n"))
+		if err != nil {
+			return err
+		}
+	}
+	recordNumber := 0
 	// Read all records
 	for {
 		record, err := csvIn.Read()
@@ -144,6 +150,13 @@ func (m *Mapper) Map() error {
 				}
 				val = f
 				break
+			case "bool":
+				b, err := strconv.ParseBool(record[i])
+				if err != nil {
+					return err
+				}
+				val = b
+				break
 			default:
 				val = record[i]
 				break
@@ -154,13 +167,20 @@ func (m *Mapper) Map() error {
 		if err != nil {
 			return err
 		}
+		if recordNumber > 0 {
+			if m.Array {
+				_, _ = writer.Write([]byte(","))
+			}
+			_, _ = writer.Write([]byte("\n"))
+		}
 		_, err = writer.Write(d)
 		if err != nil {
 			return err
 		}
-		if m.Out == "-" {
-			_, _ = writer.Write([]byte("\n"))
-		}
+		recordNumber++
+	}
+	if m.Array {
+		_, _ = writer.Write([]byte("\n]"))
 	}
 
 	return nil
