@@ -11,16 +11,6 @@ import (
 	"strings"
 )
 
-type Mapper struct {
-	In          string
-	Out         string
-	Array       bool
-	Named       bool
-	MappingFile string
-
-	configuration Configuration
-}
-
 // OptionFunc defines a function signature for configuring a Mapper instance with specific options or parameters.
 type OptionFunc func(*Mapper) error
 
@@ -70,9 +60,18 @@ func WithMappingFile(mappingFile string) OptionFunc {
 	}
 }
 
+// WithMarshalWith returns an OptionFunc to configure a Mapper with a custom function for marshaling data.
+func WithMarshalWith(marshalWith func(v any) ([]byte, error)) OptionFunc {
+	return func(mapper *Mapper) error {
+		mapper.MarshalWith = marshalWith
+		return nil
+	}
+}
+
 // NewMapper creates and initializes a new Mapper instance using the provided OptionFunc configurations.
 func NewMapper(options ...OptionFunc) (*Mapper, error) {
 	mapper := &Mapper{}
+	mapper.MarshalWith = json.Marshal
 	for _, option := range options {
 		if err := option(mapper); err != nil {
 			return nil, err
@@ -163,7 +162,7 @@ func (m *Mapper) Map() error {
 			}
 			out = setValue(strings.Split(v.Property, "."), val, out)
 		}
-		d, err := json.Marshal(out)
+		d, err := m.MarshalWith(out)
 		if err != nil {
 			return err
 		}
