@@ -1,0 +1,13 @@
+[[data]]
+  property1 = 1
+  property4 = 2.3
+  [data.property2]
+    property3 = "hello"
+    property5 = true
+
+[[data]]
+  property1 = 2
+  property4 = 3.4
+  [data.property2]
+    property3 = "world"
+    property5 = false
