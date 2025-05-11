@@ -1,0 +1,85 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ '*' ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ '*' ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.3'
+          check-latest: true
+
+      - name: Run tests
+        run: go test -v ./...
+
+  build-and-release:
+    name: Build and Release
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.3'
+          check-latest: true
+
+      - name: Get version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Build for Linux (amd64)
+        run: |
+          GOOS=linux GOARCH=amd64 go build -o csv2json-linux-amd64 ./cmd/csv2json
+          tar -czf csv2json-linux-amd64.tar.gz csv2json-linux-amd64
+
+      - name: Build for Linux (arm64)
+        run: |
+          GOOS=linux GOARCH=arm64 go build -o csv2json-linux-arm64 ./cmd/csv2json
+          tar -czf csv2json-linux-arm64.tar.gz csv2json-linux-arm64
+
+      - name: Build for macOS (amd64)
+        run: |
+          GOOS=darwin GOARCH=amd64 go build -o csv2json-darwin-amd64 ./cmd/csv2json
+          tar -czf csv2json-darwin-amd64.tar.gz csv2json-darwin-amd64
+
+      - name: Build for macOS (arm64)
+        run: |
+          GOOS=darwin GOARCH=arm64 go build -o csv2json-darwin-arm64 ./cmd/csv2json
+          tar -czf csv2json-darwin-arm64.tar.gz csv2json-darwin-arm64
+
+      - name: Build for Windows (amd64)
+        run: |
+          GOOS=windows GOARCH=amd64 go build -o csv2json-windows-amd64.exe ./cmd/csv2json
+          zip csv2json-windows-amd64.zip csv2json-windows-amd64.exe
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ steps.get_version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+          files: |
+            csv2json-linux-amd64.tar.gz
+            csv2json-linux-arm64.tar.gz
+            csv2json-darwin-amd64.tar.gz
+            csv2json-darwin-arm64.tar.gz
+            csv2json-windows-amd64.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

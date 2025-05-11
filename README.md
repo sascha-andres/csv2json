@@ -2,6 +2,8 @@
 
 A command-line tool that converts CSV data to JSON, YAML, or TOML format using a configurable mapping.
 
+[![CI/CD](https://github.com/sascha-andres/csv2json/actions/workflows/ci.yml/badge.svg)](https://github.com/sascha-andres/csv2json/actions/workflows/ci.yml)
+
 ## Overview
 
 csv2json reads CSV data from a file or standard input, transforms it according to a mapping configuration, and outputs the result in JSON, YAML, or TOML format to a file or standard output.
@@ -206,3 +208,29 @@ Will produce:
   pricing:
     retail: 29.99
 ```
+
+## Development
+
+### CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and delivery:
+
+- **Automated Testing**: All commits and pull requests trigger automated tests to ensure code quality.
+- **Automated Releases**: When a tag with format `v*` (e.g., `v1.0.0`) is pushed, the CI pipeline automatically:
+  1. Runs all tests
+  2. Builds binaries for multiple platforms (Linux, macOS, Windows)
+  3. Creates a GitHub release with these binaries
+
+### Releases
+
+Releases are available on the [GitHub Releases page](https://github.com/sascha-andres/csv2json/releases). Each release includes pre-built binaries for:
+
+- Linux (amd64, arm64)
+- macOS (amd64, arm64)
+- Windows (amd64)
+
+To create a new release:
+
+1. Tag the commit with a version number: `git tag v1.0.0`
+2. Push the tag: `git push origin v1.0.0`
+3. The GitHub Actions workflow will automatically create the release with binaries
