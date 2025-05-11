@@ -20,8 +20,14 @@ type (
 		// MappingFile specifies the path to a JSON file containing the mapping configuration for the data transformation process.
 		MappingFile string
 
-		// MarshalWith specifies a custom Marshaler to be used for serializing data during the mapping process.
-		MarshalWith func(v any) ([]byte, error)
+		// MarshalWith specifies a custom Marshaler to be used for serializing data during the mapping process. json, yaml or toml
+		MarshalWith string
+
+		// TomlPropertyName specifies the property name to use for TOML array output (defaults to "data")
+		TomlPropertyName string
+
+		// marshaler defines a custom function for serializing a value of any type into a byte slice with error handling.
+		marshaler func(v any) ([]byte, error)
 
 		// configuration holds the mapping configuration used during the data transformation process.
 		configuration Configuration
