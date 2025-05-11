@@ -43,8 +43,43 @@ type (
 		Type string `json:"type"`
 	}
 
+	// CalculatedFields defines a structure for representing dynamically computed fields within a configuration.
+	CalculatedFields struct {
+
+		// Property specifies the name of the property in the generated document.
+		Property string `json:"property"`
+
+		// Kind denotes what kind of calculate has to be treated
+		Kind string `json:"kinnd"`
+
+		// Format denotes a formatting value or the value to acquire
+		Format string `json:"format"`
+
+		// Type informa about the type represented
+		Type string `json:"type"`
+	}
+
+	// ExtraVariable is used to store a static extra variable in the mapping
+	ExtraVariable struct {
+
+		// Name is the name of the extra variable
+		Name string `json:"name"`
+
+		// Value contains the string representation of the variable
+		Value string `json:"value"`
+
+		// Type provides a way to set the data type (string, int, float, bool)
+		Type string `json:"type"`
+	}
+
 	// Configuration represents a mapping configuration where keys map to ColumnConfiguration structures.
 	Configuration struct {
+		
+		// ExtraVariables is the list of all defines variables
+		ExtraVariables []ExtraVariable
+
+		// Calculated represents a slice of calculated fields to be included in the configuration, each defined by CalculatedFields.
+		Calculated []CalculatedFields `json:"calculated"`
 
 		// Mapping represents a map of keys to their corresponding column configurations in the mapping structure.
 		Mapping map[string]ColumnConfiguration `json:"mapping"`
