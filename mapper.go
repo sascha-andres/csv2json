@@ -82,6 +82,18 @@ func WithOutputType(outputType string) OptionFunc {
 	}
 }
 
+// WithTomlPropertyName sets the property name for TOML array output.
+func WithTomlPropertyName(propertyName string) OptionFunc {
+	return func(mapper *Mapper) error {
+		if propertyName == "" {
+			mapper.TomlPropertyName = "data"
+		} else {
+			mapper.TomlPropertyName = propertyName
+		}
+		return nil
+	}
+}
+
 // NewMapper creates and initializes a new Mapper instance using the provided OptionFunc configurations.
 func NewMapper(options ...OptionFunc) (*Mapper, error) {
 	mapper := &Mapper{}
@@ -208,13 +220,18 @@ func (m *Mapper) Map() error {
 	if m.Array {
 		var d []byte
 		if m.MarshalWith == "toml" {
-			type tomlArray struct {
-				Data []map[string]any `toml:"data"`
+			// Set default property name if not specified
+			propertyName := "data"
+			if m.TomlPropertyName != "" {
+				propertyName = m.TomlPropertyName
 			}
-			t := tomlArray{
-				Data: arrResult,
+
+			// Create a map with the custom property name as the key
+			tomlData := map[string]any{
+				propertyName: arrResult,
 			}
-			d, err = m.marshaler(t)
+
+			d, err = m.marshaler(tomlData)
 			if err != nil {
 				return err
 			}

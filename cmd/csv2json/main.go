@@ -7,12 +7,13 @@ import (
 )
 
 var (
-	in          string
-	out         string
-	array       bool
-	named       bool
-	mappingFile string
-	outputType  string
+	in               string
+	out              string
+	array            bool
+	named            bool
+	mappingFile      string
+	outputType       string
+	tomlPropertyName string
 )
 
 // init initializes the command-line flags and environment variables.
@@ -24,6 +25,7 @@ func init() {
 	flag.BoolVar(&named, "named", false, "output as named")
 	flag.StringVar(&mappingFile, "mapping", "mapping.json", "mapping file")
 	flag.StringVar(&outputType, "output-type", "json", "output type, one of json, yaml or toml")
+	flag.StringVar(&tomlPropertyName, "toml-property", "data", "property name for TOML array output")
 }
 
 // main parses flags, executes the application logic via the run function, and handles any errors by panicking.
@@ -44,7 +46,8 @@ func run() error {
 		csv2json.WithArray(array),
 		csv2json.WithIn(in),
 		csv2json.WithMappingFile(mappingFile),
-		csv2json.WithNamed(named))
+		csv2json.WithNamed(named),
+		csv2json.WithTomlPropertyName(tomlPropertyName))
 	if err != nil {
 		return err
 	}

@@ -16,6 +16,7 @@ csv2json reads CSV data from a file or standard input, transforms it according t
 | `-named` | `false` | Use CSV header row for column names instead of numeric indices. |
 | `-mapping` | `mapping.json` | Path to the mapping configuration file. |
 | `-output-type` | `json` | Output format type. One of: `json`, `yaml`, or `toml`. |
+| `-toml-property` | `data` | Property name for TOML array output. |
 
 **Note:** When using `yaml` or `toml` as the output type, the `-array` flag is automatically set to `true`.
 
@@ -68,7 +69,7 @@ When using the `-array` flag, all rows are collected into a single array and out
 
 ### TOML Output Format
 
-When using TOML as the output format, the array data is wrapped in a "data" field:
+When using TOML as the output format, the array data is wrapped in a field specified by the `-toml-property` flag (defaults to "data"):
 
 ```toml
 [[data]]
@@ -76,6 +77,24 @@ property1 = 1
 # ...
 
 [[data]]
+property1 = 2
+# ...
+```
+
+You can customize this property name using the `-toml-property` flag:
+
+```
+csv2json -in products.csv -output-type toml -toml-property items
+```
+
+Will produce:
+
+```toml
+[[items]]
+property1 = 1
+# ...
+
+[[items]]
 property1 = 2
 # ...
 ```
