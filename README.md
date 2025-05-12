@@ -420,3 +420,14 @@ To create a new release:
 1. Tag the commit with a version number: `git tag v1.0.0`
 2. Push the tag: `git push origin v1.0.0`
 3. The GitHub Actions workflow will automatically create the release with binaries
+
+## License
+
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
+
+- You are free to use and modify this software for non-commercial purposes
+- You must give appropriate credit and provide a link to the license
+- You may not use this software for commercial purposes
+- Selling this work or any derivative works is strictly prohibited unless explicitly permitted in writing by the owner
+
+For more details, see the [LICENSE](LICENSE) file in the repository.
