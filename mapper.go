@@ -171,8 +171,11 @@ func (m *Mapper) Map() error {
 			if v, ok = m.configuration.Mapping[key]; !ok {
 				return errors.New("mapping configuration missing for key " + key)
 			}
-
-			out = setValue(strings.Split(v.Property, "."), convertToType(v.Type, record[i]), out)
+			val, err := convertToType(v.Type, record[i])
+			if err != nil {
+				return err
+			}
+			out = setValue(strings.Split(v.Property, "."), val, out)
 		}
 		// calculated fields
 		for _, field := range m.configuration.Calculated {
@@ -192,14 +195,20 @@ func (m *Mapper) Map() error {
 				break
 			case "environment":
 				e := os.Getenv(field.Format)
-				val = convertToType(field.Type, e)
+				val, err = convertToType(field.Type, e)
+				if err != nil {
+					return err
+				}
 				break
 			case "extra":
 				e, ok := m.configuration.ExtraVariables[field.Format]
 				if !ok {
 					return errors.New("extra variable " + field.Format + " not found")
 				}
-				val = convertToType(field.Type, e.Value)
+				val, err = convertToType(field.Type, e.Value)
+				if err != nil {
+					return err
+				}
 			default:
 				return errors.New("unknown kind " + field.Kind)
 			}
@@ -261,35 +270,35 @@ func (m *Mapper) getDateTimeValue(field CalculatedField) (any, error) {
 func (m *Mapper) getApplicationValue(field CalculatedField, i int) (any, error) {
 	switch field.Format {
 	case "record":
-		return convertToType("int", strconv.Itoa(i)), nil
+		return convertToType("int", strconv.Itoa(i))
 	}
 	return nil, errors.New("unknown format " + field.Format)
 }
 
 // convertToType converts the input string `val` to a specified type `t` such as "int", "float", or "bool".
 // Returns the converted value as `any` or an error if the conversion fails.
-func convertToType(t, val string) any {
+func convertToType(t, val string) (any, error) {
 	switch t {
 	case "int":
 		i, err := strconv.Atoi(val)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return i
+		return i, nil
 	case "float":
 		f, err := strconv.ParseFloat(val, 64)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return f
+		return f, nil
 	case "bool":
 		b, err := strconv.ParseBool(val)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return b
+		return b, nil
 	}
-	return val
+	return val, nil
 }
 
 // setValue creates and maps nested dictionaries based on a hierarchy of keys, assigning a final value.

@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 )
 
 // TestCreate tests the creation of Mapper instances using various configurations and validates expected errors or outcomes.
@@ -570,6 +571,363 @@ func TestInitialize(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// TestGetApplicationValue tests the getApplicationValue function which computes values based on application data.
+func TestGetApplicationValue(t *testing.T) {
+	mapper := &Mapper{}
+
+	tests := []struct {
+		name      string
+		field     CalculatedField
+		index     int
+		want      any
+		wantErr   bool
+		errString string
+	}{
+		{
+			name: "record format returns index",
+			field: CalculatedField{
+				Format: "record",
+				Type:   "int",
+			},
+			index:   42,
+			want:    42,
+			wantErr: false,
+		},
+		{
+			name: "unknown format returns error",
+			field: CalculatedField{
+				Format: "unknown",
+				Type:   "int",
+			},
+			index:     0,
+			want:      nil,
+			wantErr:   true,
+			errString: "unknown format",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := mapper.getApplicationValue(tt.field, tt.index)
+
+			// Check error
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getApplicationValue() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			// Check error message if expected
+			if tt.wantErr && tt.errString != "" && (err == nil || !strings.Contains(err.Error(), tt.errString)) {
+				t.Errorf("getApplicationValue() error = %v, should contain %v", err, tt.errString)
+				return
+			}
+
+			// Check result
+			if !tt.wantErr && !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getApplicationValue() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// TestGetDateTimeValue tests the getDateTimeValue function which generates formatted date and time values.
+func TestGetDateTimeValue(t *testing.T) {
+	mapper := &Mapper{}
+
+	tests := []struct {
+		name    string
+		field   CalculatedField
+		wantErr bool
+	}{
+		{
+			name: "date format",
+			field: CalculatedField{
+				Format: "2006-01-02",
+				Type:   "string",
+			},
+			wantErr: false,
+		},
+		{
+			name: "time format",
+			field: CalculatedField{
+				Format: "15:04:05",
+				Type:   "string",
+			},
+			wantErr: false,
+		},
+		{
+			name: "datetime format",
+			field: CalculatedField{
+				Format: "2006-01-02 15:04:05",
+				Type:   "string",
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := mapper.getDateTimeValue(tt.field)
+
+			// Check error
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getDateTimeValue() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			// Check that result is a string
+			if !tt.wantErr {
+				if _, ok := got.(string); !ok {
+					t.Errorf("getDateTimeValue() result is not a string: %v", got)
+					return
+				}
+
+				// Verify that the result can be parsed using the same format
+				_, err := time.Parse(tt.field.Format, got.(string))
+				if err != nil {
+					t.Errorf("getDateTimeValue() result cannot be parsed with the same format: %v", err)
+				}
+			}
+		})
+	}
+}
+
+// TestMapWithCalculatedFields tests the Map method with various calculated fields.
+func TestMapWithCalculatedFields(t *testing.T) {
+	// Create a temporary mapping file with calculated fields
+	mappingJSON := `{
+		"mapping": {
+			"id": {
+				"property": "property1",
+				"type": "int"
+			},
+			"text": {
+				"property": "property2",
+				"type": "string"
+			}
+		},
+		"calculated": [
+			{
+				"property": "calculated.record",
+				"kind": "application",
+				"format": "record",
+				"type": "int"
+			},
+			{
+				"property": "calculated.date",
+				"kind": "datetime",
+				"format": "2006-01-02",
+				"type": "string"
+			},
+			{
+				"property": "calculated.extra",
+				"kind": "extra",
+				"format": "test-var",
+				"type": "string"
+			}
+		],
+		"extra_variables": {
+			"test-var": {
+				"value": "test value"
+			}
+		}
+	}`
+
+	tempMappingFile, err := os.CreateTemp("", "mapping_calc*.json")
+	if err != nil {
+		t.Fatalf("Failed to create temp mapping file: %v", err)
+	}
+	defer os.Remove(tempMappingFile.Name())
+
+	if _, err := tempMappingFile.Write([]byte(mappingJSON)); err != nil {
+		t.Fatalf("Failed to write to temp mapping file: %v", err)
+	}
+	tempMappingFile.Close()
+
+	// Create a temporary CSV file
+	csvData := `id,text
+1,hello
+2,world`
+
+	tempCSVFile, err := os.CreateTemp("", "input_calc*.csv")
+	if err != nil {
+		t.Fatalf("Failed to create temp CSV file: %v", err)
+	}
+	defer os.Remove(tempCSVFile.Name())
+
+	if _, err := tempCSVFile.Write([]byte(csvData)); err != nil {
+		t.Fatalf("Failed to write to temp CSV file: %v", err)
+	}
+	tempCSVFile.Close()
+
+	// Create a temporary output file
+	tempOutFile, err := os.CreateTemp("", "output_calc*.json")
+	if err != nil {
+		t.Fatalf("Failed to create temp output file: %v", err)
+	}
+	defer os.Remove(tempOutFile.Name())
+	tempOutFile.Close()
+
+	// Create and run mapper
+	mapper, err := NewMapper(
+		WithIn(tempCSVFile.Name()),
+		WithOut(tempOutFile.Name()),
+		WithNamed(true),
+		WithArray(true),
+		WithMappingFile(tempMappingFile.Name()),
+		WithOutputType("json"),
+	)
+	if err != nil {
+		t.Fatalf("Failed to create mapper: %v", err)
+	}
+
+	err = mapper.Map()
+	if err != nil {
+		t.Fatalf("Failed to map: %v", err)
+	}
+
+	// Read the output file
+	outputData, err := os.ReadFile(tempOutFile.Name())
+	if err != nil {
+		t.Fatalf("Failed to read output file: %v", err)
+	}
+
+	// Parse the JSON output
+	var result []map[string]interface{}
+	if err := json.Unmarshal(outputData, &result); err != nil {
+		t.Fatalf("Failed to parse output JSON: %v", err)
+	}
+
+	// Verify the calculated fields
+	if len(result) != 2 {
+		t.Fatalf("Expected 2 records, got %d", len(result))
+	}
+
+	// Check record numbers
+	record0, ok := result[0]["calculated"].(map[string]interface{})["record"]
+	if !ok || record0 != float64(0) { // JSON numbers are float64
+		t.Errorf("Expected record 0, got %v", record0)
+	}
+
+	record1, ok := result[1]["calculated"].(map[string]interface{})["record"]
+	if !ok || record1 != float64(1) { // JSON numbers are float64
+		t.Errorf("Expected record 1, got %v", record1)
+	}
+
+	// Check date fields (just verify they exist, as the actual date will vary)
+	date0, ok := result[0]["calculated"].(map[string]interface{})["date"]
+	if !ok || date0 == "" {
+		t.Errorf("Expected date field in record 0, got %v", date0)
+	}
+
+	// Check extra variable
+	extra0, ok := result[0]["calculated"].(map[string]interface{})["extra"]
+	if !ok || extra0 != "test value" {
+		t.Errorf("Expected extra field 'test value', got %v", extra0)
+	}
+}
+
+// TestMapWithEnvironmentVariables tests the Map method with environment variables.
+func TestMapWithEnvironmentVariables(t *testing.T) {
+	// Set a test environment variable
+	testEnvVar := "TEST_ENV_VAR_FOR_CSV2JSON"
+	testEnvValue := "test environment value"
+	os.Setenv(testEnvVar, testEnvValue)
+	defer os.Unsetenv(testEnvVar)
+
+	// Create a temporary mapping file with environment variable
+	mappingJSON := `{
+		"mapping": {
+			"id": {
+				"property": "property1",
+				"type": "int"
+			}
+		},
+		"calculated": [
+			{
+				"property": "env.test",
+				"kind": "environment",
+				"format": "TEST_ENV_VAR_FOR_CSV2JSON",
+				"type": "string"
+			}
+		]
+	}`
+
+	tempMappingFile, err := os.CreateTemp("", "mapping_env*.json")
+	if err != nil {
+		t.Fatalf("Failed to create temp mapping file: %v", err)
+	}
+	defer os.Remove(tempMappingFile.Name())
+
+	if _, err := tempMappingFile.Write([]byte(mappingJSON)); err != nil {
+		t.Fatalf("Failed to write to temp mapping file: %v", err)
+	}
+	tempMappingFile.Close()
+
+	// Create a temporary CSV file
+	csvData := `id
+1`
+
+	tempCSVFile, err := os.CreateTemp("", "input_env*.csv")
+	if err != nil {
+		t.Fatalf("Failed to create temp CSV file: %v", err)
+	}
+	defer os.Remove(tempCSVFile.Name())
+
+	if _, err := tempCSVFile.Write([]byte(csvData)); err != nil {
+		t.Fatalf("Failed to write to temp CSV file: %v", err)
+	}
+	tempCSVFile.Close()
+
+	// Create a temporary output file
+	tempOutFile, err := os.CreateTemp("", "output_env*.json")
+	if err != nil {
+		t.Fatalf("Failed to create temp output file: %v", err)
+	}
+	defer os.Remove(tempOutFile.Name())
+	tempOutFile.Close()
+
+	// Create and run mapper
+	mapper, err := NewMapper(
+		WithIn(tempCSVFile.Name()),
+		WithOut(tempOutFile.Name()),
+		WithNamed(true),
+		WithArray(true),
+		WithMappingFile(tempMappingFile.Name()),
+		WithOutputType("json"),
+	)
+	if err != nil {
+		t.Fatalf("Failed to create mapper: %v", err)
+	}
+
+	err = mapper.Map()
+	if err != nil {
+		t.Fatalf("Failed to map: %v", err)
+	}
+
+	// Read the output file
+	outputData, err := os.ReadFile(tempOutFile.Name())
+	if err != nil {
+		t.Fatalf("Failed to read output file: %v", err)
+	}
+
+	// Parse the JSON output
+	var result []map[string]interface{}
+	if err := json.Unmarshal(outputData, &result); err != nil {
+		t.Fatalf("Failed to parse output JSON: %v", err)
+	}
+
+	// Verify the environment variable
+	if len(result) != 1 {
+		t.Fatalf("Expected 1 record, got %d", len(result))
+	}
+
+	envValue, ok := result[0]["env"].(map[string]interface{})["test"]
+	if !ok || envValue != testEnvValue {
+		t.Errorf("Expected environment value '%s', got %v", testEnvValue, envValue)
 	}
 }
 
