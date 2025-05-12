@@ -18,7 +18,7 @@ jobs:
           path-to-signatures: 'signatures/cla.json'
           path-to-document: 'https://github.com/${{ github.repository }}/blob/main/CONTRIBUTING.md'
           branch: 'main'
-          allowlist: bot*
+          allowlist: sascha-andres,bot*
           empty-commit-flag: false
           blockchain-storage-flag: false
           signed-commit-message: 'Signed CLA'
