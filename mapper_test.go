@@ -26,8 +26,8 @@ func TestCreate(t *testing.T) {
 				WithOut("output.json"),
 			},
 			want: &Mapper{
-				In:  "input.csv",
-				Out: "output.json",
+				in:  "input.csv",
+				out: "output.json",
 			},
 			wantErr: false,
 		},
@@ -40,10 +40,10 @@ func TestCreate(t *testing.T) {
 				WithNamed(true),
 			},
 			want: &Mapper{
-				In:    "input.csv",
-				Out:   "output.json",
-				Array: true,
-				Named: true,
+				in:    "input.csv",
+				out:   "output.json",
+				array: true,
+				named: true,
 			},
 			wantErr: false,
 		},
@@ -289,10 +289,10 @@ func TestMap(t *testing.T) {
 				// Check if the test case is for array output
 				isArrayOutput := false
 				for _, opt := range tt.options {
-					// Create a temporary mapper to check if this option sets Array to true
+					// Create a temporary mapper to check if this option sets array to true
 					tempMapper := &Mapper{}
 					opt(tempMapper)
-					if tempMapper.Array {
+					if tempMapper.array {
 						isArrayOutput = true
 						break
 					}
@@ -387,18 +387,18 @@ func TestInitialize(t *testing.T) {
 		{
 			name: "successful initialization",
 			mapper: &Mapper{
-				In:          tempCSVFile.Name(),
-				Out:         tempOutFile.Name(),
-				MappingFile: tempMappingFile.Name(),
+				in:          tempCSVFile.Name(),
+				out:         tempOutFile.Name(),
+				mappingFile: tempMappingFile.Name(),
 			},
 			wantErr: false,
 		},
 		{
 			name: "non-existent mapping file",
 			mapper: &Mapper{
-				In:          tempCSVFile.Name(),
-				Out:         tempOutFile.Name(),
-				MappingFile: "non_existent_file.json",
+				in:          tempCSVFile.Name(),
+				out:         tempOutFile.Name(),
+				mappingFile: "non_existent_file.json",
 			},
 			wantErr:   true,
 			errString: "failed to read mapping file",
@@ -406,9 +406,9 @@ func TestInitialize(t *testing.T) {
 		{
 			name: "invalid mapping file",
 			mapper: &Mapper{
-				In:          tempCSVFile.Name(),
-				Out:         tempOutFile.Name(),
-				MappingFile: tempCSVFile.Name(), // Using CSV file as mapping file will cause JSON parsing error
+				in:          tempCSVFile.Name(),
+				out:         tempOutFile.Name(),
+				mappingFile: tempCSVFile.Name(), // Using CSV file as mapping file will cause JSON parsing error
 			},
 			wantErr:   true,
 			errString: "failed to parse mapping file",
@@ -416,9 +416,9 @@ func TestInitialize(t *testing.T) {
 		{
 			name: "non-existent input file",
 			mapper: &Mapper{
-				In:          "non_existent_file.csv",
-				Out:         tempOutFile.Name(),
-				MappingFile: tempMappingFile.Name(),
+				in:          "non_existent_file.csv",
+				out:         tempOutFile.Name(),
+				mappingFile: tempMappingFile.Name(),
 			},
 			wantErr: true,
 		},
@@ -822,14 +822,14 @@ func TestMapWithEnvironmentVariables(t *testing.T) {
 	}
 }
 
-// compareMappers compares two Mapper instances for equality, considering their public fields: In, Out, Array, and Named.
+// compareMappers compares two Mapper instances for equality, considering their public fields: in, out, array, and named.
 // TODO switch to cmp
 func compareMappers(a, b *Mapper) bool {
 	if a == nil || b == nil {
 		return a == b
 	}
-	return a.In == b.In &&
-		a.Out == b.Out &&
-		a.Array == b.Array &&
-		a.Named == b.Named
+	return a.in == b.in &&
+		a.out == b.out &&
+		a.array == b.array &&
+		a.named == b.named
 }
