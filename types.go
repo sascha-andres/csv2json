@@ -57,6 +57,10 @@ type (
 
 		// Type informa about the type represented
 		Type string `json:"type"`
+
+		// Location specifies the location or context where the calculated field applies in the mapping.
+		//Either document or record
+		Location string `json:"location"`
 	}
 
 	// ExtraVariable is used to store a static extra variable in the mapping

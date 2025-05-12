@@ -1,6 +1,18 @@
+[_meta]
+  datetime = "2025-05-12 07:01:55"
+  records = 2
+
 [[data]]
   property1 = 1
   property4 = 2.3
+  [data.calculated]
+    date = "2025-05-12"
+    record = 0
+    time = "07:01:55"
+    [data.calculated.env]
+      home = "/home/andres"
+    [data.calculated.extra]
+      string = "my value"
   [data.property2]
     property3 = "hello"
     property5 = true
@@ -8,6 +20,14 @@
 [[data]]
   property1 = 2
   property4 = 3.4
+  [data.calculated]
+    date = "2025-05-12"
+    record = 1
+    time = "07:01:55"
+    [data.calculated.env]
+      home = "/home/andres"
+    [data.calculated.extra]
+      string = "my value"
   [data.property2]
     property3 = "world"
     property5 = false

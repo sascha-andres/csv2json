@@ -1,2 +1,2 @@
-{"property1":1,"property2":{"property3":"hello","property5":true},"property4":2.3}
-{"property1":2,"property2":{"property3":"world","property5":false},"property4":3.4}
+{"calculated":{"date":"2025-05-12","env":{"home":"/home/andres"},"extra":{"string":"my value"},"record":0,"time":"07:01:07"},"property1":1,"property2":{"property3":"hello","property5":true},"property4":2.3}
+{"calculated":{"date":"2025-05-12","env":{"home":"/home/andres"},"extra":{"string":"my value"},"record":1,"time":"07:01:07"},"property1":2,"property2":{"property3":"world","property5":false},"property4":3.4}

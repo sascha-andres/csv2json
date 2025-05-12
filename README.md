@@ -81,6 +81,7 @@ Each calculated field has the following properties:
 - `kind`: The type of calculation to perform (see below)
 - `format`: Additional information for the calculation, varies by kind
 - `type`: The data type of the calculated value (`int`, `float`, `bool`, or `string`)
+- `location`: Where the calculated field should be applied - either `record` (default) or `document`
 
 #### Kinds of Calculated Fields
 
@@ -97,6 +98,28 @@ Each calculated field has the following properties:
    - `format`: The name of the extra variable to use
    - Extra variables are defined in the `extra_variables` section of the configuration
 
+#### Record-Level vs Document-Level Calculated Fields
+
+Calculated fields can be applied at two different levels:
+
+1. **Record-Level Fields** (`location: "record"`): 
+   - Applied to each individual record in the output
+   - This is the default if no location is specified
+   - Always included regardless of output format
+
+2. **Document-Level Fields** (`location: "document"`):
+   - Applied to the entire document, not to individual records
+   - Only applied when using array output (with `-array` flag) or when using TOML/YAML output formats
+   - Typically used for metadata about the entire document
+   - Often placed under a top-level property like `_meta`
+
+Document-level calculated fields are useful for adding metadata about the entire dataset, such as:
+- Total number of records processed
+- Processing timestamp
+- Global configuration values
+
+**Note:** Document-level calculated fields are only applied when the output is a single document containing all records (array mode). They are not applied when outputting individual records as separate JSON objects.
+
 #### Example
 
 ```json
@@ -112,31 +135,50 @@ Each calculated field has the following properties:
       "property": "metadata.recordNumber",
       "kind": "application",
       "format": "record",
-      "type": "int"
+      "type": "int",
+      "location": "record"
     },
     {
       "property": "metadata.processedDate",
       "kind": "datetime",
       "format": "2006-01-02",
-      "type": "string"
+      "type": "string",
+      "location": "record"
     },
     {
       "property": "metadata.processedTime",
       "kind": "datetime",
       "format": "15:04:05",
-      "type": "string"
+      "type": "string",
+      "location": "record"
     },
     {
       "property": "metadata.userHome",
       "kind": "environment",
       "format": "HOME",
-      "type": "string"
+      "type": "string",
+      "location": "record"
     },
     {
       "property": "metadata.version",
       "kind": "extra",
       "format": "app-version",
-      "type": "string"
+      "type": "string",
+      "location": "record"
+    },
+    {
+      "property": "_meta.totalRecords",
+      "kind": "application",
+      "format": "records",
+      "type": "int",
+      "location": "document"
+    },
+    {
+      "property": "_meta.processedAt",
+      "kind": "datetime",
+      "format": "2006-01-02 15:04:05",
+      "type": "string",
+      "location": "document"
     }
   ],
   "extra_variables": {
@@ -147,12 +189,18 @@ Each calculated field has the following properties:
 }
 ```
 
-This configuration would add the following calculated fields to each record:
+This configuration would add the following calculated fields:
+
+Record-level fields (added to each record):
 - `metadata.recordNumber`: The 0-based index of the record
 - `metadata.processedDate`: The current date in YYYY-MM-DD format
 - `metadata.processedTime`: The current time in HH:MM:SS format
 - `metadata.userHome`: The value of the HOME environment variable
 - `metadata.version`: The string "1.0.0" from the extra variable "app-version"
+
+Document-level fields (added to the top-level document when using array output):
+- `_meta.totalRecords`: The total number of records processed
+- `_meta.processedAt`: The date and time when the document was processed
 
 ## Output Behavior
 
@@ -224,6 +272,10 @@ csv2json -in products.csv -output-type toml -nested-property items
 Will produce:
 
 ```toml
+[_meta]
+  processedAt = "2023-05-12 15:30:45"
+  totalRecords = 2
+
 [[items]]
 property1 = 1
 property2 = { property3 = "hello" }
@@ -232,6 +284,8 @@ property2 = { property3 = "hello" }
 property1 = 2
 property2 = { property3 = "world" }
 ```
+
+Note how the document-level calculated fields appear in the `_meta` section at the top of the document, while record-level calculated fields would appear within each record.
 
 ## Examples
 
