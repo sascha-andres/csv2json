@@ -155,60 +155,14 @@ func (m *Mapper) Map() error {
 			return err
 		}
 		out := make(map[string]interface{})
-		for i := range record {
-			key := fmt.Sprintf("%d", i)
-			if m.Named {
-				key = header[i]
-			}
-			var (
-				v  ColumnConfiguration
-				ok bool
-			)
-			if v, ok = m.configuration.Mapping[key]; !ok {
-				return errors.New("mapping configuration missing for key " + key)
-			}
-			val, err := convertToType(v.Type, record[i])
-			if err != nil {
-				return err
-			}
-			out = setValue(strings.Split(v.Property, "."), val, out)
+		out, err = m.mapCSVFields(record, header, out)
+		if err != nil {
+			return err
 		}
 		// calculated fields
-		for _, field := range m.configuration.Calculated {
-			var val any
-			switch field.Kind {
-			case "application":
-				val, err = m.getApplicationValue(field, recordNumber)
-				if err != nil {
-					return err
-				}
-				break
-			case "datetime":
-				val, err = m.getDateTimeValue(field)
-				if err != nil {
-					return err
-				}
-				break
-			case "environment":
-				e := os.Getenv(field.Format)
-				val, err = convertToType(field.Type, e)
-				if err != nil {
-					return err
-				}
-				break
-			case "extra":
-				e, ok := m.configuration.ExtraVariables[field.Format]
-				if !ok {
-					return errors.New("extra variable " + field.Format + " not found")
-				}
-				val, err = convertToType(field.Type, e.Value)
-				if err != nil {
-					return err
-				}
-			default:
-				return errors.New("unknown kind " + field.Kind)
-			}
-			out = setValue(strings.Split(field.Property, "."), val, out)
+		out, err = m.applyCalculatedFields(err, recordNumber, out)
+		if err != nil {
+			return err
 		}
 		if m.Array {
 			arrResult = append(arrResult, out)
@@ -254,6 +208,70 @@ func (m *Mapper) Map() error {
 		_, _ = writer.Write(d)
 	}
 	return nil
+}
+
+// mapCSVFields maps CSV records to a nested output structure using a header and mapping configuration. Returns the updated map or an error.
+func (m *Mapper) mapCSVFields(record []string, header []string, out map[string]interface{}) (map[string]interface{}, error) {
+	for i := range record {
+		key := fmt.Sprintf("%d", i)
+		if m.Named {
+			key = header[i]
+		}
+		var (
+			v  ColumnConfiguration
+			ok bool
+		)
+		if v, ok = m.configuration.Mapping[key]; !ok {
+			return nil, errors.New("mapping configuration missing for key " + key)
+		}
+		val, err := convertToType(v.Type, record[i])
+		if err != nil {
+			return nil, err
+		}
+		out = setValue(strings.Split(v.Property, "."), val, out)
+	}
+	return out, nil
+}
+
+// applyCalculatedFields applies calculated fields to the output based on the configuration and specified record number.
+func (m *Mapper) applyCalculatedFields(err error, recordNumber int, out map[string]interface{}) (map[string]interface{}, error) {
+	for _, field := range m.configuration.Calculated {
+		var val any
+		switch field.Kind {
+		case "application":
+			val, err = m.getApplicationValue(field, recordNumber)
+			if err != nil {
+				return nil, err
+			}
+			break
+		case "datetime":
+			val, err = m.getDateTimeValue(field)
+			if err != nil {
+				return nil, err
+			}
+			break
+		case "environment":
+			e := os.Getenv(field.Format)
+			val, err = convertToType(field.Type, e)
+			if err != nil {
+				return nil, err
+			}
+			break
+		case "extra":
+			e, ok := m.configuration.ExtraVariables[field.Format]
+			if !ok {
+				return nil, errors.New("extra variable " + field.Format + " not found")
+			}
+			val, err = convertToType(field.Type, e.Value)
+			if err != nil {
+				return nil, err
+			}
+		default:
+			return nil, errors.New("unknown kind " + field.Kind)
+		}
+		out = setValue(strings.Split(field.Property, "."), val, out)
+	}
+	return out, nil
 }
 
 // getDateTimeValue generates a date and time value formatted based on the Format field of the CalculatedField structure.
