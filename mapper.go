@@ -18,48 +18,58 @@ import (
 // OptionFunc defines a function signature for configuring a Mapper instance with specific options or parameters.
 type OptionFunc func(*Mapper) error
 
-// WithIn sets the "In" field of the Mapper instance to the provided string if it's not empty, otherwise returns an error.
+// WithIn sets the "in" field of the Mapper instance to the provided string if it's not empty, otherwise returns an error.
 func WithIn(in string) OptionFunc {
 	return func(mapper *Mapper) error {
 		if strings.TrimSpace(in) == "" {
 			return errors.New("-in may not be empty")
 		}
-		mapper.In = in
+		mapper.in = in
 		return nil
 	}
 }
 
-// WithOut sets the "Out" field of the Mapper instance to the provided string if it's not empty, otherwise returns an error.'
+// WithOut sets the "out" field of the Mapper instance to the provided string if it's not empty, otherwise returns an error.'
 func WithOut(out string) OptionFunc {
 	return func(mapper *Mapper) error {
 		if strings.TrimSpace(out) == "" {
 			return errors.New("-out may not be empty")
 		}
-		mapper.Out = out
+		mapper.out = out
 		return nil
 	}
 }
 
-// WithArray sets the "Array" field of the Mapper instance to the provided boolean value.
+// WithArray sets the "array" field of the Mapper instance to the provided boolean value.
 func WithArray(array bool) OptionFunc {
 	return func(mapper *Mapper) error {
-		mapper.Array = array
+		mapper.array = array
 		return nil
 	}
 }
 
-// WithNamed sets the "Named" field of the Mapper instance to the provided boolean value.
+// WithNamed sets the "named" field of the Mapper instance to the provided boolean value.
 func WithNamed(named bool) OptionFunc {
 	return func(mapper *Mapper) error {
-		mapper.Named = named
+		mapper.named = named
 		return nil
 	}
 }
 
-// WithMappingFile sets the "MappingFile" field of the Mapper instance to the provided string.
+// WithMappingFile sets the "mappingFile" field of the Mapper instance to the provided string.
 func WithMappingFile(mappingFile string) OptionFunc {
 	return func(mapper *Mapper) error {
-		mapper.MappingFile = mappingFile
+		mapper.mappingFile = mappingFile
+		return nil
+	}
+}
+
+func WithSeparator(separator string) OptionFunc {
+	return func(mapper *Mapper) error {
+		if len(separator) != 1 {
+			return errors.New(fmt.Sprintf("separator must be 1 character long (%q)", separator))
+		}
+		mapper.separator = rune(separator[0])
 		return nil
 	}
 }
@@ -67,14 +77,14 @@ func WithMappingFile(mappingFile string) OptionFunc {
 // WithOutputType sets the specified output type for marshaling data in a Mapper instance.
 func WithOutputType(outputType string) OptionFunc {
 	return func(mapper *Mapper) error {
-		mapper.MarshalWith = outputType
+		mapper.marshalWith = outputType
 		switch outputType {
 		case "json":
 		case "yaml":
 		case "toml":
 			break
 		case "":
-			mapper.MarshalWith = "json"
+			mapper.marshalWith = "json"
 			break
 		default:
 			return errors.New(fmt.Sprintf("unknown marshaling type %q", outputType))
@@ -86,7 +96,7 @@ func WithOutputType(outputType string) OptionFunc {
 // WithNestedPropertyName sets the property name for TOML array output.
 func WithNestedPropertyName(propertyName string) OptionFunc {
 	return func(mapper *Mapper) error {
-		mapper.NestedPropertyName = propertyName
+		mapper.nestedPropertyName = propertyName
 		return nil
 	}
 }
@@ -99,16 +109,16 @@ func NewMapper(options ...OptionFunc) (*Mapper, error) {
 			return nil, err
 		}
 	}
-	switch mapper.MarshalWith {
+	switch mapper.marshalWith {
 	case "json":
 		mapper.marshaler = json.Marshal
 		break
 	case "yaml":
-		mapper.Array = true
+		mapper.array = true
 		mapper.marshaler = yaml.Marshal
 		break
 	case "toml":
-		mapper.Array = true
+		mapper.array = true
 		mapper.marshaler = toml.Marshal
 		break
 	}
@@ -125,6 +135,7 @@ func (m *Mapper) Map() error {
 	defer writer.Close()
 
 	csvIn := csv.NewReader(reader)
+	csvIn.Comma = m.separator
 	csvIn.ReuseRecord = false
 
 	var (
@@ -133,7 +144,7 @@ func (m *Mapper) Map() error {
 	)
 
 	// Read header if needed
-	if m.Named {
+	if m.named {
 		header, err = csvIn.Read()
 		if err != nil {
 			return err
@@ -141,7 +152,7 @@ func (m *Mapper) Map() error {
 	}
 	// from now on we can reuse the record
 	csvIn.ReuseRecord = true
-	if m.Array {
+	if m.array {
 		arrResult = make([]map[string]any, 0)
 	}
 	recordNumber := 0
@@ -164,7 +175,7 @@ func (m *Mapper) Map() error {
 		if err != nil {
 			return err
 		}
-		if m.Array {
+		if m.array {
 			arrResult = append(arrResult, out)
 		} else {
 			d, err := m.marshaler(out)
@@ -181,13 +192,13 @@ func (m *Mapper) Map() error {
 		}
 		recordNumber++
 	}
-	if m.Array {
+	if m.array {
 		var d []byte
-		if m.MarshalWith == "toml" || m.NestedPropertyName != "" {
+		if m.marshalWith == "toml" || m.nestedPropertyName != "" {
 			// Set default property name if not specified
 			propertyName := "data"
-			if m.NestedPropertyName != "" {
-				propertyName = m.NestedPropertyName
+			if m.nestedPropertyName != "" {
+				propertyName = m.nestedPropertyName
 			}
 
 			// Create a map with the custom property name as the key
@@ -217,7 +228,7 @@ func (m *Mapper) Map() error {
 func (m *Mapper) mapCSVFields(record []string, header []string, out map[string]any) (map[string]any, error) {
 	for i := range record {
 		key := fmt.Sprintf("%d", i)
-		if m.Named {
+		if m.named {
 			key = header[i]
 		}
 		var (
@@ -300,8 +311,8 @@ func (m *Mapper) getApplicationValue(field CalculatedField, i int) (any, error) 
 // initialize initializes the Mapper instance by reading the mapping file and opening the input and output files.
 func (m *Mapper) initialize() (io.ReadCloser, io.WriteCloser, error) {
 	mappingFile := "mapping.json"
-	if m.MappingFile != "" {
-		mappingFile = m.MappingFile
+	if m.mappingFile != "" {
+		mappingFile = m.mappingFile
 	}
 
 	configData, err := os.ReadFile(mappingFile)
@@ -316,18 +327,18 @@ func (m *Mapper) initialize() (io.ReadCloser, io.WriteCloser, error) {
 		fIn  io.ReadCloser
 		fOut io.WriteCloser
 	)
-	if m.In == "-" {
+	if m.in == "-" {
 		fIn = os.Stdin
 	} else {
-		fIn, err = os.OpenFile(m.In, os.O_RDONLY, 0600)
+		fIn, err = os.OpenFile(m.in, os.O_RDONLY, 0600)
 		if err != nil {
 			return nil, nil, err
 		}
 	}
-	if m.Out == "-" {
+	if m.out == "-" {
 		fOut = os.Stdout
 	} else {
-		fOut, err = os.OpenFile(m.Out, os.O_CREATE|os.O_WRONLY, 0600)
+		fOut, err = os.OpenFile(m.out, os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
 			return nil, nil, err
 		}

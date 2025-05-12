@@ -14,6 +14,7 @@ var (
 	mappingFile        string
 	outputType         string
 	nestedPropertyName string
+	separator          string = ","
 )
 
 // init initializes the command-line flags and environment variables.
@@ -26,6 +27,7 @@ func init() {
 	flag.StringVar(&mappingFile, "mapping", "mapping.json", "mapping file")
 	flag.StringVar(&outputType, "output-type", "json", "output type, one of json, yaml or toml")
 	flag.StringVar(&nestedPropertyName, "nested-property", "", "property name for nested array output")
+	flag.StringVar(&separator, "separator", ",", "separator for CSV input")
 }
 
 // main parses flags, executes the application logic via the run function, and handles any errors by panicking.
@@ -47,7 +49,9 @@ func run() error {
 		csv2json.WithIn(in),
 		csv2json.WithMappingFile(mappingFile),
 		csv2json.WithNamed(named),
-		csv2json.WithNestedPropertyName(nestedPropertyName))
+		csv2json.WithNestedPropertyName(nestedPropertyName),
+		csv2json.WithSeparator(separator))
+
 	if err != nil {
 		return err
 	}
