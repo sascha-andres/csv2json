@@ -423,11 +423,28 @@ To create a new release:
 
 ## License
 
-This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
+This project is licensed under a Custom Commercial Use License.
 
-- You are free to use and modify this software for non-commercial purposes
+- You are free to use this software for commercial purposes within your organization
 - You must give appropriate credit and provide a link to the license
-- You may not use this software for commercial purposes
-- Selling this work or any derivative works is strictly prohibited unless explicitly permitted in writing by the owner
+- You may not sell this software or any derivative works as part of a product outside your organization
+- You may make modifications for internal use only, but may not distribute modified versions
+- Distribution of this software as part of a commercial product to external customers is strictly prohibited unless explicitly permitted in writing by the owner
 
 For more details, see the [LICENSE](LICENSE) file in the repository.
+
+## Contributing
+
+We welcome contributions to csv2json! Before contributing, please read our [Contributing Guidelines](CONTRIBUTING.md) which includes our Contributor License Agreement (CLA).
+
+### Contributor License Agreement
+
+All contributors to this project must agree to our Contributor License Agreement (CLA). The CLA ensures that the project maintainers have the necessary rights to use and distribute your contributions.
+
+When you submit a pull request, our automated system will check if you have agreed to the CLA. If not, you'll be prompted to do so by commenting on the pull request with:
+
+```
+I agree to the CLA
+```
+
+For more details about the CLA and the contribution process, please see the [CONTRIBUTING.md](CONTRIBUTING.md) file.
