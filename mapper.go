@@ -229,7 +229,7 @@ func (m *Mapper) Map() error {
 	}
 	if m.Array {
 		var d []byte
-		if m.MarshalWith == "toml" {
+		if m.MarshalWith == "toml" || m.NestedPropertyName != "" {
 			// Set default property name if not specified
 			propertyName := "data"
 			if m.NestedPropertyName != "" {
@@ -237,11 +237,11 @@ func (m *Mapper) Map() error {
 			}
 
 			// Create a map with the custom property name as the key
-			tomlData := map[string]any{
+			outputData := map[string]any{
 				propertyName: arrResult,
 			}
 
-			d, err = m.marshaler(tomlData)
+			d, err = m.marshaler(outputData)
 			if err != nil {
 				return err
 			}
