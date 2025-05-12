@@ -55,22 +55,18 @@
       "type": "string"
     },
     {
-      "property": "calculated.extra.string",
+      "property": "calculated.extra.bool",
       "kind": "extra",
       "format": "my-bool",
       "type": "bool"
     }
   ],
-  "extra_variables": [
-    {
-      "name": "my-var",
-      "value": "my value",
-      "type": "string"
+  "extra_variables": {
+    "my-var": {
+      "value": "my value"
     },
-    {
-      "name": "my-bool",
-      "value": "true",
-      "type": "bool"
+    "my-bool": {
+      "value": "true"
     }
-  ]
+  }
 }
