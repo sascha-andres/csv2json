@@ -1,3 +1,4 @@
-"id","text","value","b"
-1,"hello",2.3,true
-2,"world",3.4,false
+"id","text","value","b","from-to"
+1,"hello",2.3,true,"a"
+2,"world",3.4,false,"b"
+3,"default",4.3,false,"c"

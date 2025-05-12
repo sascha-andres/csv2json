@@ -98,6 +98,16 @@ Each calculated field has the following properties:
    - `format`: The name of the extra variable to use
    - Extra variables are defined in the `extra_variables` section of the configuration
 
+5. **mapping**: Maps values from a source field to different output values
+   - `format`: Specified as "field:mapping_list" where:
+     - `field` is the source field name (when using `-named`) or index
+     - `mapping_list` is a comma-separated list of "from=to" pairs
+     - A special "default" mapping can be specified for values that don't match any explicit mapping
+   - Example: "from-to:a=0,b=1,default=99" maps values from the "from-to" field:
+     - "a" becomes 0
+     - "b" becomes 1
+     - Any other value becomes 99
+
 #### Record-Level vs Document-Level Calculated Fields
 
 Calculated fields can be applied at two different levels:
@@ -329,6 +339,63 @@ The default output will be:
   "property4": 2.3
 }
 ```
+
+### Value Mapping Example
+
+Given the following CSV:
+
+```csv
+id,status,value
+1,"active",10.5
+2,"inactive",20.3
+3,"pending",15.7
+```
+
+And this mapping.json with value mapping:
+
+```json
+{
+  "mapping": {
+    "id": {
+      "property": "id",
+      "type": "int"
+    },
+    "status": {
+      "property": "originalStatus",
+      "type": "string"
+    },
+    "value": {
+      "property": "amount",
+      "type": "float"
+    }
+  },
+  "calculated": [
+    {
+      "property": "statusCode",
+      "kind": "mapping",
+      "format": "status:active=1,inactive=0,pending=2,default=-1",
+      "type": "int",
+      "location": "record"
+    }
+  ]
+}
+```
+
+Running with the `-named` flag:
+
+```
+csv2json -in statuses.csv -named
+```
+
+Will produce:
+
+```
+{"id":1,"originalStatus":"active","amount":10.5,"statusCode":1}
+{"id":2,"originalStatus":"inactive","amount":20.3,"statusCode":0}
+{"id":3,"originalStatus":"pending","amount":15.7,"statusCode":2}
+```
+
+This example demonstrates how to map string status values to numeric codes using the value mapping feature.
 
 ### Using Named Columns
 
