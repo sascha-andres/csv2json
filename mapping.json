@@ -15,10 +15,6 @@
     "b": {
       "property": "property2.property5",
       "type": "bool"
-    },
-    "from-to": {
-      "property": "calculated.mapped",
-      "type": "string"
     }
   },
   "calculated": [
