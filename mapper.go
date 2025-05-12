@@ -83,7 +83,7 @@ func WithOutputType(outputType string) OptionFunc {
 	}
 }
 
-// WithTomlPropertyName sets the property name for TOML array output.
+// WithNestedPropertyName sets the property name for TOML array output.
 func WithNestedPropertyName(propertyName string) OptionFunc {
 	return func(mapper *Mapper) error {
 		mapper.NestedPropertyName = propertyName

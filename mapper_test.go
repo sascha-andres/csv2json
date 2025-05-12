@@ -529,24 +529,27 @@ func TestGetDateTimeValue(t *testing.T) {
 		{
 			name: "date format",
 			field: CalculatedField{
-				Format: "2006-01-02",
-				Type:   "string",
+				Format:   "2006-01-02",
+				Type:     "string",
+				Location: "record",
 			},
 			wantErr: false,
 		},
 		{
 			name: "time format",
 			field: CalculatedField{
-				Format: "15:04:05",
-				Type:   "string",
+				Format:   "15:04:05",
+				Type:     "string",
+				Location: "record",
 			},
 			wantErr: false,
 		},
 		{
 			name: "datetime format",
 			field: CalculatedField{
-				Format: "2006-01-02 15:04:05",
-				Type:   "string",
+				Format:   "2006-01-02 15:04:05",
+				Type:     "string",
+				Location: "record",
 			},
 			wantErr: false,
 		},
@@ -598,19 +601,22 @@ func TestMapWithCalculatedFields(t *testing.T) {
 				"property": "calculated.record",
 				"kind": "application",
 				"format": "record",
-				"type": "int"
+				"type": "int",
+				"location": "record"
 			},
 			{
 				"property": "calculated.date",
 				"kind": "datetime",
 				"format": "2006-01-02",
-				"type": "string"
+				"type": "string",
+				"location": "record"
 			},
 			{
 				"property": "calculated.extra",
 				"kind": "extra",
 				"format": "test-var",
-				"type": "string"
+				"type": "string",
+				"location": "record"
 			}
 		],
 		"extra_variables": {
@@ -735,7 +741,8 @@ func TestMapWithEnvironmentVariables(t *testing.T) {
 				"property": "env.test",
 				"kind": "environment",
 				"format": "TEST_ENV_VAR_FOR_CSV2JSON",
-				"type": "string"
+				"type": "string",
+				"location": "record"
 			}
 		]
 	}`
