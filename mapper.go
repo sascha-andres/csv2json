@@ -237,7 +237,7 @@ func (m *Mapper) mapCSVFields(record []string, header []string, out map[string]a
 			ok bool
 		)
 		if v, ok = m.configuration.Mapping[key]; !ok {
-			return nil, errors.New("mapping configuration missing for key " + key)
+			return out, nil
 		}
 		val, err := convertToType(v.Type, record[i])
 		if err != nil {
