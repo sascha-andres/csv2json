@@ -25,7 +25,7 @@ func init() {
 	flag.BoolVar(&named, "named", false, "output as named")
 	flag.StringVar(&mappingFile, "mapping", "mapping.json", "mapping file")
 	flag.StringVar(&outputType, "output-type", "json", "output type, one of json, yaml or toml")
-	flag.StringVar(&nestedPropertyName, "nested-property", "data", "property name for nested array output")
+	flag.StringVar(&nestedPropertyName, "nested-property", "", "property name for nested array output")
 }
 
 // main parses flags, executes the application logic via the run function, and handles any errors by panicking.
