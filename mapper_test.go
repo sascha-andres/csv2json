@@ -223,7 +223,7 @@ func TestMap(t *testing.T) {
 				WithArray(true),
 				WithMappingFile(tempMappingFile.Name()),
 				WithOutputType("toml"),
-				WithTomlPropertyName("records"),
+				WithNestedPropertyName("records"),
 			},
 			expectedOutput: "", // We won't check the exact TOML output format
 			wantErr:        false,
