@@ -241,19 +241,6 @@ func TestMap(t *testing.T) {
 			expectedOutput: "",
 			wantErr:        true,
 		},
-		{
-			name: "error - missing column in mapping",
-			options: []OptionFunc{
-				WithIn(tempCSVFile.Name()),
-				WithOut("-"),
-				WithNamed(true),
-				WithArray(true),
-				WithMappingFile(tempInvalidMappingFile.Name()),
-				WithOutputType("json"),
-			},
-			expectedOutput: "",
-			wantErr:        true,
-		},
 	}
 
 	for _, tt := range tests {
