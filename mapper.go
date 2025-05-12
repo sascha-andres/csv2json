@@ -160,7 +160,7 @@ func (m *Mapper) Map() error {
 			return err
 		}
 		// calculated fields
-		out, err = m.applyCalculatedFields(err, recordNumber, out)
+		out, err = m.applyCalculatedFields(err, recordNumber, out, "record")
 		if err != nil {
 			return err
 		}
@@ -194,7 +194,10 @@ func (m *Mapper) Map() error {
 			outputData := map[string]any{
 				propertyName: arrResult,
 			}
-
+			outputData, err = m.applyCalculatedFields(err, recordNumber, outputData, "document")
+			if err != nil {
+				return err
+			}
 			d, err = m.marshaler(outputData)
 			if err != nil {
 				return err
@@ -211,7 +214,7 @@ func (m *Mapper) Map() error {
 }
 
 // mapCSVFields maps CSV records to a nested output structure using a header and mapping configuration. Returns the updated map or an error.
-func (m *Mapper) mapCSVFields(record []string, header []string, out map[string]interface{}) (map[string]interface{}, error) {
+func (m *Mapper) mapCSVFields(record []string, header []string, out map[string]any) (map[string]any, error) {
 	for i := range record {
 		key := fmt.Sprintf("%d", i)
 		if m.Named {
@@ -234,8 +237,11 @@ func (m *Mapper) mapCSVFields(record []string, header []string, out map[string]i
 }
 
 // applyCalculatedFields applies calculated fields to the output based on the configuration and specified record number.
-func (m *Mapper) applyCalculatedFields(err error, recordNumber int, out map[string]interface{}) (map[string]interface{}, error) {
+func (m *Mapper) applyCalculatedFields(err error, recordNumber int, out map[string]any, loc string) (map[string]any, error) {
 	for _, field := range m.configuration.Calculated {
+		if field.Location != loc {
+			continue
+		}
 		var val any
 		switch field.Kind {
 		case "application":
@@ -284,6 +290,8 @@ func (m *Mapper) getDateTimeValue(field CalculatedField) (any, error) {
 func (m *Mapper) getApplicationValue(field CalculatedField, i int) (any, error) {
 	switch field.Format {
 	case "record":
+		return convertToType("int", strconv.Itoa(i))
+	case "records":
 		return convertToType("int", strconv.Itoa(i))
 	}
 	return nil, errors.New("unknown format " + field.Format)

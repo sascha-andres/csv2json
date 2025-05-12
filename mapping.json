@@ -22,43 +22,57 @@
       "property": "calculated.record",
       "kind": "application",
       "format": "record",
-      "type": "int"
+      "type": "int",
+      "location": "record"
+    },
+    {
+      "property": "_meta.records",
+      "kind": "application",
+      "format": "records",
+      "type": "int",
+      "location": "document"
     },
     {
       "property": "calculated.date",
       "kind": "datetime",
       "format": "2006-01-02",
-      "type": "string"
+      "type": "string",
+      "location": "record"
     },
     {
       "property": "calculated.time",
       "kind": "datetime",
       "format": "15:04:05",
-      "type": "string"
+      "type": "string",
+      "location": "record"
     },
     {
-      "property": "calculated.datetime",
+      "property": "_meta.datetime",
       "kind": "datetime",
       "format": "2006-01-02 15:04:05",
-      "type": "string"
+      "type": "string",
+      "location": "document"
     },
     {
       "property": "calculated.env.home",
       "kind": "environment",
       "format": "HOME",
-      "type": "string"
+      "type": "string",
+      "location": "record"
     },
     {
       "property": "calculated.extra.string",
       "kind": "extra",
       "format": "my-var",
-      "type": "string"
+      "type": "string",
+      "location": "record"
     },
     {
       "property": "calculated.extra.bool",
       "kind": "extra",
       "format": "my-bool",
-      "type": "bool"
+      "type": "bool",
+      "location": "tld"
     }
   ],
   "extra_variables": {
