@@ -43,6 +43,19 @@ The mapping configuration is a JSON file that defines how CSV columns are mapped
       "property": "nested.property",
       "type": "dataType"
     }
+  },
+  "calculated": [
+    {
+      "property": "calculatedProperty",
+      "kind": "kindOfCalculation",
+      "format": "formatString",
+      "type": "dataType"
+    }
+  ],
+  "extra_variables": {
+    "variable-name": {
+      "value": "variable-value"
+    }
   }
 }
 ```
@@ -58,6 +71,88 @@ Where:
   - `float` - converts the value to a floating-point number
   - `bool` - converts the value to a boolean
   - `string` (default) - keeps the value as a string
+
+### Calculated Fields
+
+Calculated fields allow you to add dynamic values to your output that are not directly derived from the CSV input. These fields are defined in the `calculated` array of the mapping configuration.
+
+Each calculated field has the following properties:
+- `property`: The name of the property in the output (supports dot notation for nested objects)
+- `kind`: The type of calculation to perform (see below)
+- `format`: Additional information for the calculation, varies by kind
+- `type`: The data type of the calculated value (`int`, `float`, `bool`, or `string`)
+
+#### Kinds of Calculated Fields
+
+1. **datetime**: Adds the current date/time formatted according to the format string
+   - `format`: A Go time format string (e.g., "2006-01-02" for date, "15:04:05" for time)
+
+2. **application**: Adds application-specific values
+   - `format`: Currently only supports "record", which adds the record index (0-based)
+
+3. **environment**: Adds the value of an environment variable
+   - `format`: The name of the environment variable to read
+
+4. **extra**: Adds the value of an extra variable defined in the configuration
+   - `format`: The name of the extra variable to use
+   - Extra variables are defined in the `extra_variables` section of the configuration
+
+#### Example
+
+```json
+{
+  "mapping": {
+    "id": {
+      "property": "productId",
+      "type": "int"
+    }
+  },
+  "calculated": [
+    {
+      "property": "metadata.recordNumber",
+      "kind": "application",
+      "format": "record",
+      "type": "int"
+    },
+    {
+      "property": "metadata.processedDate",
+      "kind": "datetime",
+      "format": "2006-01-02",
+      "type": "string"
+    },
+    {
+      "property": "metadata.processedTime",
+      "kind": "datetime",
+      "format": "15:04:05",
+      "type": "string"
+    },
+    {
+      "property": "metadata.userHome",
+      "kind": "environment",
+      "format": "HOME",
+      "type": "string"
+    },
+    {
+      "property": "metadata.version",
+      "kind": "extra",
+      "format": "app-version",
+      "type": "string"
+    }
+  ],
+  "extra_variables": {
+    "app-version": {
+      "value": "1.0.0"
+    }
+  }
+}
+```
+
+This configuration would add the following calculated fields to each record:
+- `metadata.recordNumber`: The 0-based index of the record
+- `metadata.processedDate`: The current date in YYYY-MM-DD format
+- `metadata.processedTime`: The current time in HH:MM:SS format
+- `metadata.userHome`: The value of the HOME environment variable
+- `metadata.version`: The string "1.0.0" from the extra variable "app-version"
 
 ## Output Behavior
 

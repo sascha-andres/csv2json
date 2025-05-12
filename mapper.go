@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"gopkg.in/yaml.v3"
@@ -164,41 +165,54 @@ func (m *Mapper) Map() error {
 				key = header[i]
 			}
 			var (
-				v   ColumnConfiguration
-				val any
-				ok  bool
+				v  ColumnConfiguration
+				ok bool
 			)
 			if v, ok = m.configuration.Mapping[key]; !ok {
 				return errors.New("mapping configuration missing for key " + key)
 			}
-
-			switch v.Type {
-			case "int":
-				i, err := strconv.Atoi(record[i])
-				if err != nil {
-					return err
-				}
-				val = i
-				break
-			case "float":
-				f, err := strconv.ParseFloat(record[i], 64)
-				if err != nil {
-					return err
-				}
-				val = f
-				break
-			case "bool":
-				b, err := strconv.ParseBool(record[i])
-				if err != nil {
-					return err
-				}
-				val = b
-				break
-			default:
-				val = record[i]
-				break
+			val, err := convertToType(v.Type, record[i])
+			if err != nil {
+				return err
 			}
 			out = setValue(strings.Split(v.Property, "."), val, out)
+		}
+		// calculated fields
+		for _, field := range m.configuration.Calculated {
+			var val any
+			switch field.Kind {
+			case "application":
+				val, err = m.getApplicationValue(field, recordNumber)
+				if err != nil {
+					return err
+				}
+				break
+			case "datetime":
+				val, err = m.getDateTimeValue(field)
+				if err != nil {
+					return err
+				}
+				break
+			case "environment":
+				e := os.Getenv(field.Format)
+				val, err = convertToType(field.Type, e)
+				if err != nil {
+					return err
+				}
+				break
+			case "extra":
+				e, ok := m.configuration.ExtraVariables[field.Format]
+				if !ok {
+					return errors.New("extra variable " + field.Format + " not found")
+				}
+				val, err = convertToType(field.Type, e.Value)
+				if err != nil {
+					return err
+				}
+			default:
+				return errors.New("unknown kind " + field.Kind)
+			}
+			out = setValue(strings.Split(field.Property, "."), val, out)
 		}
 		if m.Array {
 			arrResult = append(arrResult, out)
@@ -244,6 +258,47 @@ func (m *Mapper) Map() error {
 		_, _ = writer.Write(d)
 	}
 	return nil
+}
+
+// getDateTimeValue generates a date and time value formatted based on the Format field of the CalculatedField structure.
+func (m *Mapper) getDateTimeValue(field CalculatedField) (any, error) {
+	return time.Now().Format(field.Format), nil
+}
+
+// getApplicationValue computes and returns a value based on the specified CalculatedField and index.
+// Returns the computed value or an error if the field format is unknown.
+func (m *Mapper) getApplicationValue(field CalculatedField, i int) (any, error) {
+	switch field.Format {
+	case "record":
+		return convertToType("int", strconv.Itoa(i))
+	}
+	return nil, errors.New("unknown format " + field.Format)
+}
+
+// convertToType converts the input string `val` to a specified type `t` such as "int", "float", or "bool".
+// Returns the converted value as `any` or an error if the conversion fails.
+func convertToType(t, val string) (any, error) {
+	switch t {
+	case "int":
+		i, err := strconv.Atoi(val)
+		if err != nil {
+			return nil, err
+		}
+		return i, nil
+	case "float":
+		f, err := strconv.ParseFloat(val, 64)
+		if err != nil {
+			return nil, err
+		}
+		return f, nil
+	case "bool":
+		b, err := strconv.ParseBool(val)
+		if err != nil {
+			return nil, err
+		}
+		return b, nil
+	}
+	return val, nil
 }
 
 // setValue creates and maps nested dictionaries based on a hierarchy of keys, assigning a final value.

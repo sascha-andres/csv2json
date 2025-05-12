@@ -16,5 +16,57 @@
       "property": "property2.property5",
       "type": "bool"
     }
+  },
+  "calculated": [
+    {
+      "property": "calculated.record",
+      "kind": "application",
+      "format": "record",
+      "type": "int"
+    },
+    {
+      "property": "calculated.date",
+      "kind": "datetime",
+      "format": "2006-01-02",
+      "type": "string"
+    },
+    {
+      "property": "calculated.time",
+      "kind": "datetime",
+      "format": "15:04:05",
+      "type": "string"
+    },
+    {
+      "property": "calculated.datetime",
+      "kind": "datetime",
+      "format": "2006-01-02 15:04:05",
+      "type": "string"
+    },
+    {
+      "property": "calculated.env.home",
+      "kind": "environment",
+      "format": "HOME",
+      "type": "string"
+    },
+    {
+      "property": "calculated.extra.string",
+      "kind": "extra",
+      "format": "my-var",
+      "type": "string"
+    },
+    {
+      "property": "calculated.extra.bool",
+      "kind": "extra",
+      "format": "my-bool",
+      "type": "bool"
+    }
+  ],
+  "extra_variables": {
+    "my-var": {
+      "value": "my value"
+    },
+    "my-bool": {
+      "value": "true"
+    }
   }
 }
