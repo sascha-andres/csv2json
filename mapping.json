@@ -15,9 +15,20 @@
     "b": {
       "property": "property2.property5",
       "type": "bool"
+    },
+    "from-to": {
+      "property": "calculated.mapped",
+      "type": "string"
     }
   },
   "calculated": [
+    {
+      "property": "calculated.mapped",
+      "kind": "mapping",
+      "format": "from-to:a=0,b=1,default=99",
+      "type": "int",
+      "location": "record"
+    },
     {
       "property": "calculated.record",
       "kind": "application",
