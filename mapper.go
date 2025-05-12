@@ -104,7 +104,7 @@ func WithNestedPropertyName(propertyName string) OptionFunc {
 
 // NewMapper creates and initializes a new Mapper instance using the provided OptionFunc configurations.
 func NewMapper(options ...OptionFunc) (*Mapper, error) {
-	mapper := &Mapper{}
+	mapper := &Mapper{separator: ','}
 	for _, option := range options {
 		if err := option(mapper); err != nil {
 			return nil, err
