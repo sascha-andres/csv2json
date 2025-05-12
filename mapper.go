@@ -84,13 +84,9 @@ func WithOutputType(outputType string) OptionFunc {
 }
 
 // WithTomlPropertyName sets the property name for TOML array output.
-func WithTomlPropertyName(propertyName string) OptionFunc {
+func WithNestedPropertyName(propertyName string) OptionFunc {
 	return func(mapper *Mapper) error {
-		if propertyName == "" {
-			mapper.TomlPropertyName = "data"
-		} else {
-			mapper.TomlPropertyName = propertyName
-		}
+		mapper.NestedPropertyName = propertyName
 		return nil
 	}
 }
@@ -236,8 +232,8 @@ func (m *Mapper) Map() error {
 		if m.MarshalWith == "toml" {
 			// Set default property name if not specified
 			propertyName := "data"
-			if m.TomlPropertyName != "" {
-				propertyName = m.TomlPropertyName
+			if m.NestedPropertyName != "" {
+				propertyName = m.NestedPropertyName
 			}
 
 			// Create a map with the custom property name as the key
