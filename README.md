@@ -18,7 +18,7 @@ csv2json reads CSV data from a file or standard input, transforms it according t
 | `-named` | `false` | Use CSV header row for column names instead of numeric indices. |
 | `-mapping` | `mapping.json` | Path to the mapping configuration file. |
 | `-output-type` | `json` | Output format type. One of: `json`, `yaml`, or `toml`. |
-| `-toml-property` | `data` | Property name for TOML array output. |
+| `-nested-property` | `data` | Property name for nested array output. When specified, array output is nested under this property name. |
 
 **Note:** When using `yaml` or `toml` as the output type, the `-array` flag is automatically set to `true`.
 
@@ -164,24 +164,61 @@ When processing multiple CSV rows without the `-array` flag, each row is convert
 
 When using the `-array` flag, all rows are collected into a single array and output as one document.
 
-### TOML Output Format
+### Nested Property Output
 
-When using TOML as the output format, the array data is wrapped in a field specified by the `-toml-property` flag (defaults to "data"):
+When using the `-nested-property` flag with the `-array` flag (or when using TOML output which implicitly enables array mode), the output data is nested under the specified property name:
 
-```toml
-[[data]]
-property1 = 1
-# ...
-
-[[data]]
-property1 = 2
-# ...
-```
-
-You can customize this property name using the `-toml-property` flag:
+#### JSON Output with Nested Property
 
 ```
-csv2json -in products.csv -output-type toml -toml-property items
+csv2json -in products.csv -array -nested-property items
+```
+
+Will produce:
+
+```json
+{
+  "items": [
+    {
+      "property1": 1,
+      "property2": {
+        "property3": "hello"
+      }
+    },
+    {
+      "property1": 2,
+      "property2": {
+        "property3": "world"
+      }
+    }
+  ]
+}
+```
+
+#### YAML Output with Nested Property
+
+```
+csv2json -in products.csv -output-type yaml -nested-property items
+```
+
+Will produce:
+
+```yaml
+items:
+  - property1: 1
+    property2:
+      property3: hello
+  - property1: 2
+    property2:
+      property3: world
+```
+
+#### TOML Output Format
+
+When using TOML as the output format, the array data is always wrapped in a property. By default, this property is named "data", but you can customize it using the `-nested-property` flag:
+
+```
+csv2json -in products.csv -output-type toml -nested-property items
 ```
 
 Will produce:
@@ -189,11 +226,11 @@ Will produce:
 ```toml
 [[items]]
 property1 = 1
-# ...
+property2 = { property3 = "hello" }
 
 [[items]]
 property1 = 2
-# ...
+property2 = { property3 = "world" }
 ```
 
 ## Examples
