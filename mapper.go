@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -171,7 +172,7 @@ func (m *Mapper) Map() error {
 			return err
 		}
 		// calculated fields
-		out, err = m.applyCalculatedFields(err, recordNumber, out, "record")
+		out, err = m.applyCalculatedFields(record, header, recordNumber, out, "record")
 		if err != nil {
 			return err
 		}
@@ -205,7 +206,7 @@ func (m *Mapper) Map() error {
 			outputData := map[string]any{
 				propertyName: arrResult,
 			}
-			outputData, err = m.applyCalculatedFields(err, recordNumber, outputData, "document")
+			outputData, err = m.applyCalculatedFields(nil, nil, recordNumber, outputData, "document")
 			if err != nil {
 				return err
 			}
@@ -248,7 +249,9 @@ func (m *Mapper) mapCSVFields(record []string, header []string, out map[string]a
 }
 
 // applyCalculatedFields applies calculated fields to the output based on the configuration and specified record number.
-func (m *Mapper) applyCalculatedFields(err error, recordNumber int, out map[string]any, loc string) (map[string]any, error) {
+func (m *Mapper) applyCalculatedFields(record, header []string, recordNumber int, out map[string]any, loc string) (map[string]any, error) {
+	var err error
+
 	for _, field := range m.configuration.Calculated {
 		if field.Location != loc {
 			continue
@@ -282,6 +285,52 @@ func (m *Mapper) applyCalculatedFields(err error, recordNumber int, out map[stri
 			val, err = convertToType(field.Type, e.Value)
 			if err != nil {
 				return nil, err
+			}
+		case "mapping":
+			if record == nil {
+				continue
+			}
+			splitFormat := strings.Split(field.Format, ":")
+			if len(splitFormat) != 2 {
+				return nil, errors.New(fmt.Sprintf("expected format field:mapping list, %q", field.Format))
+			}
+			var currentValue string
+			if m.named {
+				if !slices.Contains(header, splitFormat[0]) {
+					return nil, errors.New("mapping field " + splitFormat[0] + " not found in header")
+				}
+				currentValue = record[slices.Index(header, splitFormat[0])]
+			} else {
+				var i int
+				if i, err = strconv.Atoi(splitFormat[0]); err != nil {
+					return nil, errors.New("mapping field " + splitFormat[0] + " not found as it is an invalid index")
+				} else if i >= len(record) {
+					return nil, errors.New("mapping field " + splitFormat[0] + " not found as it does not exist in the record")
+				}
+				currentValue = record[i]
+			}
+			splitMappings := strings.Split(splitFormat[1], ",")
+			var (
+				defaultMapping *string
+				isSet          bool
+			)
+			for _, splitMapping := range splitMappings {
+				splitMapping := strings.Split(splitMapping, "=")
+				if len(splitMapping) != 2 {
+					return nil, errors.New(fmt.Sprintf("expected format from=to list, %q", splitMapping))
+				}
+				if splitMapping[0] == currentValue {
+					val, err = convertToType(field.Type, splitMapping[1])
+					isSet = true
+					break
+				}
+				if splitMapping[0] == "default" {
+					defaultMapping = &splitMapping[1]
+					break
+				}
+			}
+			if !isSet && defaultMapping != nil {
+				val, err = convertToType(field.Type, *defaultMapping)
 			}
 		default:
 			return nil, errors.New("unknown kind " + field.Kind)
