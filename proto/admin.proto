@@ -8,6 +8,9 @@ service AdminService {
   // Remove a project and all related data
   rpc RemoveProject(RemoveProjectRequest) returns (RemoveProjectResponse) {};
 
+  // List projects
+  rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {};
+
   // Add or update a field mapping to a project (or multiple)
   rpc AddOrUpdateMapping(AddOrUpdateMappingRequest) returns (AddOrUpdateMappingResponse) {};
 
@@ -111,6 +114,30 @@ message RemoveProjectRequest {
 message RemoveProjectResponse {
   // Any errors
   repeated Error errors = 1;
+}
+
+//---------- list projects ----------//
+
+// Data returned per project for a list request
+message ListProjectData {
+  // uniqud identifier
+  string id = 1;
+  // Name of project
+  string name = 2;
+  // Description for more information
+  optional string description = 3;
+}
+
+// Request to get all projects
+message ListProjectsRequest {
+}
+
+// List of projects
+message ListProjectsResponse {
+  // Any errors
+  repeated Error errors = 1;
+  // Projects known
+  repeated ListProjectData projects = 2;
 }
 
 //---------- add mapping(s) for project messages ----------//
