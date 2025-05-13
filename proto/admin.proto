@@ -16,6 +16,9 @@ service AdminService {
 
   // Remove extra variables from project
   rpc RemoveExtraVariable(RemoveExtraVariableRequest) returns (RemoveExtraVariableResponse) {};
+
+  // Add or update one or more calculated fields
+  rpc AddOrUpdateCalculatedFields(AddOrUpdateCalculatedFieldsRequest) returns (AddOrUpdateCalculatedFieldsResponse) {};
 }
 
 //---------- commonly used messages ----------//
@@ -169,6 +172,57 @@ message RemoveExtraVariableRequest {
 
 // Result of removing mapping(s)
 message RemoveExtraVariableResponse {
+  // Any errors
+  repeated Error errors = 1;
+}
+
+//---------- add calculated field(s) ----------//
+
+// What kind of calculation takes part
+enum Kind {
+  // Run specific information such as record number or number of records
+  APPLICATION = 0;
+  // Date and time rendered
+  DATETIME = 1;
+  // Environment variables
+  ENVRINMENT = 2;
+  // Extra variable
+  EXTRA = 3;
+  // Map values to other values
+  MAPPING = 4;
+}
+
+// Location to put calculated fiels
+enum Location {
+  // to each record
+  RECORD = 0;
+  // to documsnt, only has an effect when generating an array
+  EOCUMENT = 1;
+}
+
+// describes a calculated field
+message CalculatedField {
+  // Kind denotes what kind of calculate has to be treated
+  Kind kind = 1;
+  // Format denotes a formatting value or the value to acquire
+  string format = 2;
+  // Type informa about the type represented
+  FieldType type = 3;
+  // Location specifies the location or context where the calculated field applies in the mapping.
+  // Either document or record
+  Location location = 4;
+}
+
+// Add one or more calculated fields to the project
+message AddOrUpdateCalculatedFieldsRequest {
+  // reference to project
+  string project = 1;
+  // field to add, string key is the field name
+  map<string,CalculatedField> calculated_fields = 2;
+}
+
+// Response to add calculated fields
+message AddOrUpdateCalculatedFieldsResponse {
   // Any errors
   repeated Error errors = 1;
 }
