@@ -26,8 +26,14 @@ service AdminService {
   // Remove extra variables from project
   rpc RemoveExtraVariable(RemoveExtraVariableRequest) returns (RemoveExtraVariableResponse) {};
 
+  // List extra variables for project
+  rpc ListExtraVariables(ListExtraVariablesRequest) returns (ListExtraVariablesResponse) {};
+
   // Add or update one or more calculated fields
   rpc AddOrUpdateCalculatedFields(AddOrUpdateCalculatedFieldsRequest) returns (AddOrUpdateCalculatedFieldsResponse) {};
+
+  // Remove one or more calculated fields
+  rpc RemoveCalculatedFields(RemoveCalculatedFieldsRequest) returns (RemoveCalculatedFieldsResponse) {};
 }
 
 //---------- commonly used messages ----------//
@@ -177,9 +183,9 @@ message AddOrUpdateMappingResponse {
   map<string, ActionTaken> ActionsTaken = 2;
 }
 
-//---------- list projects ----------//
+//---------- list mappings ----------//
 
-// Request to get all projects
+// Request to get all mappings fo a project
 message ListMappingsRequest {
   // reference to project
   string project = 1;
@@ -222,6 +228,22 @@ message AddExtraVariableRequest {
 message AddExtraVariableResponse {
   // Any errors
   repeated Error errors = 1;
+}
+
+//---------- list mappings ----------//
+
+// Request to get all mappings fo a project
+message ListExtraVariablesRequest {
+  // reference to project
+  string project = 1;
+}
+
+// List of projects
+message ListExtraVariablesResponse {
+  // Any errors
+  repeated Error errors = 1;
+  // Extra variables, string is the name
+  map<string,string> extra_variables = 2;
 }
 
 //---------- remove extra variable(s) for project messages ----------//
@@ -288,4 +310,35 @@ message AddOrUpdateCalculatedFieldsRequest {
 message AddOrUpdateCalculatedFieldsResponse {
   // Any errors
   repeated Error errors = 1;
+}
+
+//---------- remove calculated field(s) for project messages ----------//
+
+message RemoveCalculatedFieldsRequest {
+  // reference to project
+  string project = 1;
+  // which mapping(s) to remove
+  repeated string calculated_fields = 2;
+}
+
+// Result of removing mapping(s)
+message RemoveCalculatedFieldsResponse {
+  // Any errors
+  repeated Error errors = 1;
+}
+
+//---------- list mappings ----------//
+
+// Request to get all mappings fo a project
+message ListCalculatedFieldsRequest {
+  // reference to project
+  string project = 1;
+}
+
+// List of projects
+message ListCalculatedFieldsResponse {
+  // Any errors
+  repeated Error errors = 1;
+  // Calculated feilds, string is the field either by name (project is named) or index
+  map<string,CalculatedField> calculated_fields = 2;
 }
