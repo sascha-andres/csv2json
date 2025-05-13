@@ -232,7 +232,7 @@ message AddExtraVariableResponse {
   repeated Error errors = 1;
 }
 
-//---------- list mappings ----------//
+//---------- list extra variables ----------//
 
 // Request to get all mappings fo a project
 message ListExtraVariablesRequest {

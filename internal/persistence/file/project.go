@@ -49,11 +49,13 @@ func (s Storer) ListProjects() ([]storer.Project, error) {
 
 // RemoveProject removes project data (incl all run data)
 func (s Storer) RemoveProject(id string) error {
-	err := s.bucket.Delete(context.Background(), projectPathForId(storer.Project{Id: id}))
-	if err != nil {
+	if err := s.ClearMappings(id); err != nil {
 		return err
 	}
-	return s.ClearMappings(id)
+	if err := s.ClearExtraVariables(id); err != nil {
+		return err
+	}
+	return s.bucket.Delete(context.Background(), projectPathForId(storer.Project{Id: id}))
 }
 
 // CreateProject is used to create a project

@@ -29,5 +29,17 @@ type (
 
 		// ClearMappings is called when project ist removed
 		ClearMappings(projectID string) error
+
+		// CreateExtraVariables to add a static variable to the project
+		CreateExtraVariables(projectID string, variables map[string]string) error
+
+		// GetExtraVariables to load all extra variables
+		GetExtraVariables(projectID string) (map[string]string, error)
+
+		// RemoveExtraVariables to remove one or more extra variables
+		RemoveExtraVariables(projectID string, extraVariables []string) error
+
+		// ClearExtraVariables to clear the project from extra variables
+		ClearExtraVariables(projectID string) error
 	}
 )
