@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/sascha-andres/csv2json"
 	"github.com/sascha-andres/csv2json/internal/persistence"
 	"github.com/sascha-andres/csv2json/storer"
 )
@@ -20,6 +21,32 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	mapping := make(map[string]csv2json.ColumnConfiguration)
+	mapping["name"] = csv2json.ColumnConfiguration{Property: "property", Type: "string"}
+	mapping["age"] = csv2json.ColumnConfiguration{Property: "property", Type: "int"}
+	a, err := s.CreateMappings(l[0].Id, mapping)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for i := range a {
+		log.Printf("%+v", a[i])
+	}
+	err = s.RemoveMappings(l[0].Id, []string{"name"})
+	if err != nil {
+		log.Fatal(err)
+	}
+	a, err = s.CreateMappings(l[0].Id, mapping)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for i := range a {
+		log.Printf("%+v", a[i])
+	}
+	readMappings, err := s.GetMappings(l[0].Id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("%+v", readMappings)
 	for _, p := range l {
 		log.Printf("%+v", p)
 		err = s.RemoveProject(p.Id)
