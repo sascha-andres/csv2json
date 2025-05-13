@@ -5,8 +5,11 @@ service AdminService {
   // Creates a csv2json transformation project
   rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {};
 
-  // Add a field mapping to a project
+  // Add or update a field mapping to a project (or multiple)
   rpc AddOrUpdateMapping(AddOrUpdateMappingRequest) returns (AddOrUpdateMappingResponse) {};
+
+  // Remove mapping(s)
+  rpc RemoveMapping(RemoveMappingRequest) returns (RemoveMappingResponse) {};
 }
 
 //---------- commonly used messages ----------//
@@ -65,7 +68,7 @@ message CreateProjectRequest {
   reserved 3, 4, 5, 6, 7, 8, 9;
 
   // What rofmat to use (can be overriddeh in a run later)
-  optional OutputType output_type = 14;
+  optional OutputType output_type = 10;
   // Access CSV fields by name
   optional bool named = 11;
   // Output an array
@@ -84,7 +87,7 @@ message CreateProjectResponse {
   optional string id = 2;
 }
 
-//---------- add mapping for project messages ----------//
+//---------- add mapping(s) for project messages ----------//
 
 // ColumnConfiguration is a simple mapping from column to proprty
 message ColumnConfiguration {
@@ -98,12 +101,37 @@ message ColumnConfiguration {
 message AddOrUpdateMappingRequest {
   // reference ro project
   string project = 1;
-  // Mappings to add or update, string is tne column either by name (project is named) or index
+  // Mappings to add or update, string is the column either by name (project is named) or index
   map<string, ColumnConfiguration> mappings = 2;
 }
 
-// Result of adding ot updating
+// was mapping added or updated
+enum ActionTaken {
+  // Added
+  ADDED = 0;
+  // updated
+  UPDATED = 1;
+}
+
+// Result of adding or updating
 message AddOrUpdateMappingResponse {
+  // Any errors
+  repeated Error errors = 1;
+  // Actions taken per column by name or index
+  map<string, ActionTaken> ActionsTaken = 2;
+}
+
+//---------- remove mapping(s) for project messages ----------//
+
+message RemoveMappingRequest {
+  // reference ro project
+  string project = 1;
+  // which mapping(s) to remove
+  repeated string mapping = 2;
+}
+
+// Result of removing mapping(s)
+message RemoveMappingResponse {
   // Any errors
   repeated Error errors = 1;
 }
