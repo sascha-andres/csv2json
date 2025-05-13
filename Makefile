@@ -40,7 +40,7 @@ protobuf: ## run protobuf stuff
 	./check_protobuf.sh
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-	protoc -I proto/ proto/admin.proto --go_out=admin --go-grpc_out=admin --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative 
+	go generate
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
