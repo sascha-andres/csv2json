@@ -5,6 +5,8 @@ service AdminService {
   // Creates a csv2json transformation project
   rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {};
 
+  rpc RemvoeProject(RemoveProjectRequest) returns (RemoveProjectResponse) {};
+
   // Add or update a field mapping to a project (or multiple)
   rpc AddOrUpdateMapping(AddOrUpdateMappingRequest) returns (AddOrUpdateMappingResponse) {};
 
@@ -94,6 +96,20 @@ message CreateProjectResponse {
   repeated Error errors = 1;
   // id if projecb was created
   optional string id = 2;
+}
+
+//---------- remove project ----------//
+
+// Remove a project and all related data
+message RemoveProjectRequest {
+  // reference to project
+  string project = 1;
+}
+
+// Result of removal
+message RemoveProjectResponse {
+  // Any errors
+  repeated Error errors = 1;
 }
 
 //---------- add mapping(s) for project messages ----------//
