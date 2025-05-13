@@ -17,6 +17,9 @@ service AdminService {
   // Remove mapping(s)
   rpc RemoveMapping(RemoveMappingRequest) returns (RemoveMappingResponse) {};
 
+  // List mappings for project
+  rpc ListMappings(ListMappingsRequest) returns (ListMappingsResponse) {};
+
   // Add extra variables to reference in calculated fields
   rpc AddExtraVariable(AddExtraVariableRequest) returns (AddExtraVariableResponse) {};
 
@@ -172,6 +175,22 @@ message AddOrUpdateMappingResponse {
   repeated Error errors = 1;
   // Actions taken per column by name or index
   map<string, ActionTaken> ActionsTaken = 2;
+}
+
+//---------- list projects ----------//
+
+// Request to get all projects
+message ListMappingsRequest {
+  // reference to project
+  string project = 1;
+}
+
+// List of projects
+message ListMappingsResponse {
+  // Any errors
+  repeated Error errors = 1;
+  // Mappings, string is the column either by name (project is named) or index
+  map<string, ColumnConfiguration> mappings = 2;
 }
 
 //---------- remove mapping(s) for project messages ----------//
