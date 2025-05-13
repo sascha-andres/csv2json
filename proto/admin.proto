@@ -4,8 +4,9 @@ syntax = "proto3";
 service AdminService {
   // Creates a csv2json transformation project
   rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {};
-
-  rpc RemvoeProject(RemoveProjectRequest) returns (RemoveProjectResponse) {};
+ 
+  // Remove a project and all related data
+  rpc RemoveProject(RemoveProjectRequest) returns (RemoveProjectResponse) {};
 
   // Add or update a field mapping to a project (or multiple)
   rpc AddOrUpdateMapping(AddOrUpdateMappingRequest) returns (AddOrUpdateMappingResponse) {};
