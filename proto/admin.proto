@@ -13,6 +13,9 @@ service AdminService {
 
   // Add extra variables to reference in calculated fields
   rpc AddExtraVariable(AddExtraVariableRequest) returns (AddExtraVariableResponse) {};
+
+  // Remove extra variables from project
+  rpc RemoveExtraVariable(RemoveExtraVariableRequest) returns (RemoveExtraVariableResponse) {};
 }
 
 //---------- commonly used messages ----------//
@@ -130,7 +133,7 @@ message RemoveMappingRequest {
   // reference to project
   string project = 1;
   // which mapping(s) to remove
-  repeated string mapping = 2;
+  repeated string mappings = 2;
 }
 
 // Result of removing mapping(s)
@@ -151,6 +154,21 @@ message AddExtraVariableRequest {
 
 // Result of adding extra variable(s)
 message AddExtraVariableResponse {
+  // Any errors
+  repeated Error errors = 1;
+}
+
+//---------- remove extra variable(s) for project messages ----------//
+
+message RemoveExtraVariableRequest {
+  // reference to project
+  string project = 1;
+  // which mapping(s) to remove
+  repeated string extra_variables = 2;
+}
+
+// Result of removing mapping(s)
+message RemoveExtraVariableResponse {
   // Any errors
   repeated Error errors = 1;
 }
