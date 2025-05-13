@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package = "github.com/sascha-andres/csv2json/admin";
+
 // Administrative tasks in this service
 service AdminService {
   // Creates a csv2json transformation project
