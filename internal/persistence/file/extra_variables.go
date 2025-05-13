@@ -49,7 +49,7 @@ func (s Storer) ClearExtraVariables(projectID string) error {
 
 // loadMappings deserializes mappings from file storage
 func (s Storer) loadExtraVariables(projectID string) (map[string]string, error) {
-	path := getMappingPathForProject(projectID)
+	path := getExtraVariablesPathForProject(projectID)
 	ctx := context.Background()
 	known, err := s.bucket.Exists(ctx, path)
 	if err != nil {
@@ -77,7 +77,7 @@ func (s Storer) loadExtraVariables(projectID string) (map[string]string, error) 
 
 // saveExtraVariables persists to storage
 func (s Storer) saveExtraVariables(id string, variables map[string]string) error {
-	path := getMappingPathForProject(id)
+	path := getExtraVariablesPathForProject(id)
 	ctx := context.Background()
 	w, err := s.bucket.NewWriter(ctx, path, nil)
 	if err != nil {

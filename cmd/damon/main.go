@@ -47,6 +47,15 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Printf("%+v", readMappings)
+	err = s.CreateExtraVariables(l[0].Id, map[string]string{"name": "Andres"})
+	if err != nil {
+		log.Fatal(err)
+	}
+	readExtraVariables, err := s.GetExtraVariables(l[0].Id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("%+v", readExtraVariables)
 	for _, p := range l {
 		log.Printf("%+v", p)
 		err = s.RemoveProject(p.Id)
