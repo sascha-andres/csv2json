@@ -301,18 +301,18 @@ const (
 	// to each record
 	Location_RECORD Location = 0
 	// to documsnt, only has an effect when generating an array
-	Location_EOCUMENT Location = 1
+	Location_DOCUMENT Location = 1
 )
 
 // Enum value maps for Location.
 var (
 	Location_name = map[int32]string{
 		0: "RECORD",
-		1: "EOCUMENT",
+		1: "DOCUMENT",
 	}
 	Location_value = map[string]int32{
 		"RECORD":   0,
-		"EOCUMENT": 1,
+		"DOCUMENT": 1,
 	}
 )
 
@@ -2004,7 +2004,7 @@ const file_admin_proto_rawDesc = "" +
 	"\bLocation\x12\n" +
 	"\n" +
 	"\x06RECORD\x10\x00\x12\f\n" +
-	"\bEOCUMENT\x10\x012\xdc\x06\n" +
+	"\bDOCUMENT\x10\x012\xdc\x06\n" +
 	"\fAdminService\x12@\n" +
 	"\rCreateProject\x12\x15.CreateProjectRequest\x1a\x16.CreateProjectResponse\"\x00\x12@\n" +
 	"\rRemoveProject\x12\x15.RemoveProjectRequest\x1a\x16.RemoveProjectResponse\"\x00\x12=\n" +

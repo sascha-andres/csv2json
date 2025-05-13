@@ -284,7 +284,7 @@ enum Location {
   // to each record
   RECORD = 0;
   // to documsnt, only has an effect when generating an array
-  EOCUMENT = 1;
+  DOCUMENT = 1;
 }
 
 // describes a calculated field
