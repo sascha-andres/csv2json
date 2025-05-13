@@ -16,4 +16,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	l, err := s.ListProjects()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, p := range l {
+		log.Printf("%+v", p)
+		err = s.RemoveProject(p.Id)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 }

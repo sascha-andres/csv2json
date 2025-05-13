@@ -7,5 +7,11 @@ type (
 	Storer interface {
 		// CreateProject is used to create a project
 		CreateProject(p storer.Project) error
+
+		// RemoveProject removes project data (incl all run data)
+		RemoveProject(id string) error
+
+		// ListProjects returns all known projects
+		ListProjects() ([]storer.Project, error)
 	}
 )
