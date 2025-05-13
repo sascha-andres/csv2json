@@ -10,6 +10,9 @@ service AdminService {
 
   // Remove mapping(s)
   rpc RemoveMapping(RemoveMappingRequest) returns (RemoveMappingResponse) {};
+
+  // Add extra variables to reference in calculated fields
+  rpc AddExtraVariable(AddExtraVariableRequest) returns (AddExtraVariableResponse) {};
 }
 
 //---------- commonly used messages ----------//
@@ -99,7 +102,7 @@ message ColumnConfiguration {
 
 // Add one or more mappings. If a mapping exists will be overwritten
 message AddOrUpdateMappingRequest {
-  // reference ro project
+  // reference to project
   string project = 1;
   // Mappings to add or update, string is the column either by name (project is named) or index
   map<string, ColumnConfiguration> mappings = 2;
@@ -124,7 +127,7 @@ message AddOrUpdateMappingResponse {
 //---------- remove mapping(s) for project messages ----------//
 
 message RemoveMappingRequest {
-  // reference ro project
+  // reference to project
   string project = 1;
   // which mapping(s) to remove
   repeated string mapping = 2;
@@ -132,6 +135,22 @@ message RemoveMappingRequest {
 
 // Result of removing mapping(s)
 message RemoveMappingResponse {
+  // Any errors
+  repeated Error errors = 1;
+}
+
+//---------- add extra variable(s) ----------//
+
+// add one or more extra variables
+message AddExtraVariableRequest {
+  // reference to project
+  string project = 1;
+  // Variables to add
+  map<string,string> extra_variables = 2;
+}
+
+// Result of adding extra variable(s)
+message AddExtraVariableResponse {
   // Any errors
   repeated Error errors = 1;
 }
