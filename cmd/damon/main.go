@@ -1,6 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/sascha-andres/reuse/flag"
 
 	"github.com/sascha-andres/csv2json/cmd/damon/rpc"
@@ -28,12 +33,37 @@ func main() {
 	}
 }
 
-// run initializes a Mapper instance with provided configurations and processes CSV input into JSON format.
+// run initializes an RPC server with provided configurations and handles graceful shutdown.
 // It returns an error if any step in the process fails.
 func run() error {
 	r, err := rpc.NewRpc(rpc.WithPort(port), rpc.WithStorageDsn(storageDsn), rpc.WithInterface(iface))
 	if err != nil {
 		return err
 	}
-	return r.Run()
+
+	// Create a channel to listen for OS signals
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	// Run the RPC server in a goroutine
+	errChan := make(chan error, 1)
+	go func() {
+		fmt.Printf("Starting RPC server on %s:%d\n", iface, port)
+		if err := r.Run(); err != nil {
+			errChan <- err
+		}
+	}()
+
+	// Wait for a signal or an error from the server
+	select {
+	case sig := <-sigChan:
+		fmt.Printf("Received signal: %v, initiating graceful shutdown\n", sig)
+		r.GracefulStop()
+		fmt.Println("Server gracefully stopped")
+	case err := <-errChan:
+		fmt.Printf("Server error: %v\n", err)
+		return err
+	}
+
+	return nil
 }

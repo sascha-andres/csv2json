@@ -99,3 +99,10 @@ func (r *Rpc) Run() error {
 	}
 	return nil
 }
+
+// GracefulStop gracefully stops the RPC server, allowing ongoing RPCs to complete.
+func (r *Rpc) GracefulStop() {
+	if r.s != nil {
+		r.s.GracefulStop()
+	}
+}
