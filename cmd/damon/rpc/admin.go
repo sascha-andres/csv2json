@@ -5,17 +5,27 @@ import (
 	"strings"
 
 	"github.com/rs/xid"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/sascha-andres/csv2json/pb"
 	"github.com/sascha-andres/csv2json/storer"
 )
 
-// getValueOrEmptyString returns the dereferenced value of the string pointer `s` or an empty string if `s` is nil.
-func getValueOrEmptyString(s *string) string {
-	if s == nil {
-		return ""
+func (s *adminServer) ListProjects(_ context.Context, _ *pb.ListProjectsRequest) (*pb.ListProjectsResponse, error) {
+	return nil, nil
+}
+
+// RemoveProject and all related data
+func (s *adminServer) RemoveProject(_ context.Context, req *pb.RemoveProjectRequest) (*pb.RemoveProjectResponse, error) {
+	err := s.storage.RemoveProject(req.Project)
+	if err != nil {
+		resp := &pb.RemoveProjectResponse{Errors: []*pb.Error{}}
+		for _, e := range err {
+			resp.Errors = append(resp.Errors, &pb.Error{Message: e.Error(), Severity: pb.Severity_WARN})
+		}
+		return resp, nil
 	}
-	return *s
+	return &pb.RemoveProjectResponse{}, nil
 }
 
 // CreateProject handles the creation of a new project using the provided request data and stores it in the database.
@@ -26,13 +36,33 @@ func (s *adminServer) CreateProject(_ context.Context, req *pb.CreateProjectRequ
 		Id:   newProjectId,
 		Name: req.Name,
 	}
-	project.Array = req.Array
-	project.Named = req.Named
-	project.Description = req.Description
-	project.NestedPropertyName = req.NestedPropertyName
+	if req.Array == nil || !*req.Array {
+		project.Array = proto.Bool(false)
+	} else {
+		project.Array = proto.Bool(true)
+	}
+	if req.Named == nil || !*req.Named {
+		project.Named = proto.Bool(false)
+	} else {
+		project.Named = proto.Bool(true)
+	}
+	if req.Description == nil {
+		project.Description = proto.String("")
+	} else {
+		project.Description = req.Description
+	}
+	if req.NestedPropertyName == nil {
+		project.NestedPropertyName = proto.String("")
+	} else {
+		project.NestedPropertyName = req.NestedPropertyName
+	}
 	ot := storer.OutputType(strings.ToLower(req.GetOutputType().String()))
 	project.OutputType = &ot
-	project.Separator = req.Separator
+	if req.Separator == nil {
+		project.Separator = proto.String("")
+	} else {
+		project.Separator = req.Separator
+	}
 	err := s.storage.CreateProject(project)
 	if err != nil {
 		return &pb.CreateProjectResponse{Errors: []*pb.Error{&pb.Error{Message: err.Error(), Severity: pb.Severity_CRITICAL}}}, nil

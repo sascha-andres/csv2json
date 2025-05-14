@@ -7,6 +7,8 @@ import (
 	"fmt"
 )
 
+const extraVariablesPathName = "extra_variables"
+
 // CreateExtraVariables to add a static variable to the project
 func (s Storer) CreateExtraVariables(projectID string, variables map[string]string) error {
 	extraVariables, err := s.loadExtraVariables(projectID)
@@ -96,5 +98,5 @@ func (s Storer) saveExtraVariables(id string, variables map[string]string) error
 
 // getExtraVariablesPathForProject returns the file storage path for mappings
 func getExtraVariablesPathForProject(projectId string) string {
-	return fmt.Sprintf("extra_variables/%s.json", projectId)
+	return fmt.Sprintf("%s/%s.json", projectId, extraVariablesPathName)
 }

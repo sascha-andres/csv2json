@@ -10,6 +10,8 @@ import (
 	"github.com/sascha-andres/csv2json/pb"
 )
 
+const mappingsPathName = "mappings"
+
 // CreateMappings persists mappings for a given project
 func (s Storer) CreateMappings(projectID string, columns map[string]csv2json.ColumnConfiguration) (map[string]pb.ActionTaken, error) {
 	mappings, err := s.loadMappings(projectID)
@@ -105,5 +107,5 @@ func (s Storer) loadMappings(projectID string) (map[string]csv2json.ColumnConfig
 
 // getMappingPathForProject returns the file storage path for mappings
 func getMappingPathForProject(projectId string) string {
-	return fmt.Sprintf("mappings/%s.json", projectId)
+	return fmt.Sprintf("%s/%s.json", projectId, mappingsPathName)
 }

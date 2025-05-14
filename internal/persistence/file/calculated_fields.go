@@ -9,7 +9,7 @@ import (
 	"github.com/sascha-andres/csv2json"
 )
 
-const calculatedFieldsPrefix = "calculated_fields/"
+const calculatedFieldsPathName = "calculated_fields"
 
 // CreateCalculatedFields to add a calculated fields to the project
 func (s Storer) CreateCalculatedFields(projectID string, variables map[string]csv2json.CalculatedField) error {
@@ -100,5 +100,5 @@ func (s Storer) saveCalculatedFields(id string, calculatedFields map[string]csv2
 
 // getCalculatedFieldsPathForProject returns the file storage path for mappings
 func getCalculatedFieldsPathForProject(projectId string) string {
-	return fmt.Sprintf("%s%s.json", calculatedFieldsPrefix, projectId)
+	return fmt.Sprintf("%s/%s.json", projectId, calculatedFieldsPathName)
 }

@@ -8,6 +8,7 @@ import (
 	"io"
 
 	"gocloud.dev/blob"
+	"gocloud.dev/gcerrors"
 
 	"github.com/sascha-andres/csv2json/storer"
 )
@@ -48,17 +49,30 @@ func (s Storer) ListProjects() ([]storer.Project, error) {
 }
 
 // RemoveProject removes project data (incl all run data)
-func (s Storer) RemoveProject(id string) error {
+func (s Storer) RemoveProject(id string) []error {
+	result := make([]error, 0)
 	if err := s.ClearMappings(id); err != nil {
-		return err
+		errCode := gcerrors.Code(err)
+		if errCode != gcerrors.NotFound {
+			result = append(result, err)
+		}
 	}
 	if err := s.ClearExtraVariables(id); err != nil {
-		return err
+		errCode := gcerrors.Code(err)
+		if errCode != gcerrors.NotFound {
+			result = append(result, err)
+		}
 	}
 	if err := s.ClearCalculatedFields(id); err != nil {
-		return err
+		errCode := gcerrors.Code(err)
+		if errCode != gcerrors.NotFound {
+			result = append(result, err)
+		}
 	}
-	return s.bucket.Delete(context.Background(), projectPathForId(storer.Project{Id: id}))
+	if err := s.bucket.Delete(context.Background(), projectPathForId(storer.Project{Id: id})); err != nil {
+		result = append(result, err)
+	}
+	return result
 }
 
 // CreateProject is used to create a project
@@ -80,5 +94,5 @@ func (s Storer) CreateProject(p storer.Project) error {
 
 // projectPathForId returns the project path in storage
 func projectPathForId(p storer.Project) string {
-	return fmt.Sprintf("projects/%s", p.Id)
+	return fmt.Sprintf("%s/project.json", p.Id)
 }
