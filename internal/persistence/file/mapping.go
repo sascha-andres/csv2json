@@ -7,24 +7,24 @@ import (
 	"fmt"
 
 	"github.com/sascha-andres/csv2json"
-	"github.com/sascha-andres/csv2json/admin"
+	"github.com/sascha-andres/csv2json/pb"
 )
 
 // CreateMappings persists mappings for a given project
-func (s Storer) CreateMappings(projectID string, columns map[string]csv2json.ColumnConfiguration) (map[string]admin.ActionTaken, error) {
+func (s Storer) CreateMappings(projectID string, columns map[string]csv2json.ColumnConfiguration) (map[string]pb.ActionTaken, error) {
 	mappings, err := s.loadMappings(projectID)
 	if err != nil {
 		return nil, err
 	}
-	result := make(map[string]admin.ActionTaken)
+	result := make(map[string]pb.ActionTaken)
 	if mappings == nil {
 		mappings = make(map[string]csv2json.ColumnConfiguration)
 	}
 	for k, v := range columns {
 		if _, ok := mappings[k]; !ok {
-			result[k] = admin.ActionTaken_ADDED
+			result[k] = pb.ActionTaken_ADDED
 		} else {
-			result[k] = admin.ActionTaken_UPDATED
+			result[k] = pb.ActionTaken_UPDATED
 		}
 		mappings[k] = v
 	}

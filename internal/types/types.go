@@ -2,7 +2,7 @@ package types
 
 import (
 	"github.com/sascha-andres/csv2json"
-	"github.com/sascha-andres/csv2json/admin"
+	"github.com/sascha-andres/csv2json/pb"
 	"github.com/sascha-andres/csv2json/storer"
 )
 
@@ -19,7 +19,7 @@ type (
 		ListProjects() ([]storer.Project, error)
 
 		// CreateMappings allows adding or updating mappings for a project
-		CreateMappings(projectID string, columns map[string]csv2json.ColumnConfiguration) (map[string]admin.ActionTaken, error)
+		CreateMappings(projectID string, columns map[string]csv2json.ColumnConfiguration) (map[string]pb.ActionTaken, error)
 
 		// RemoveMappings removes all mappings provided from storage
 		RemoveMappings(projectID string, columns []string) error

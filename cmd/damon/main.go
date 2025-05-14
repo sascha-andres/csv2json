@@ -1,83 +1,35 @@
 package main
 
 import (
-	"log"
+	"github.com/sascha-andres/reuse/flag"
 
-	"github.com/sascha-andres/csv2json"
-	"github.com/sascha-andres/csv2json/internal/persistence"
-	"github.com/sascha-andres/csv2json/storer"
+	"github.com/sascha-andres/csv2json/cmd/damon/rpc"
 )
 
+var (
+	storageDsn, iface string
+	port              uint
+)
+
+func init() {
+	flag.SetEnvPrefix("CSV2JSON_DAEMON")
+	flag.StringVar(&storageDsn, "storage-dsn", "file:file://./file-storage", "storage dsn")
+	flag.StringVar(&iface, "interface", "", "interface to listen on")
+	flag.UintVar(&port, "port", 50501, "port to listen on")
+}
+
 func main() {
-	s, err := persistence.GetStorer("file:file:///Users/andres/tmp/csv2json")
+	flag.Parse()
+
+	if err := run(); err != nil {
+		panic(err)
+	}
+}
+
+func run() error {
+	r, err := rpc.NewRpc(rpc.WithPort(port), rpc.WithStorageDsn(storageDsn), rpc.WithInterface(iface))
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	err = s.CreateProject(storer.Project{Id: "123", Name: "test"})
-	if err != nil {
-		log.Fatal(err)
-	}
-	l, err := s.ListProjects()
-	if err != nil {
-		log.Fatal(err)
-	}
-	mapping := make(map[string]csv2json.ColumnConfiguration)
-	mapping["name"] = csv2json.ColumnConfiguration{Property: "property", Type: "string"}
-	mapping["age"] = csv2json.ColumnConfiguration{Property: "property", Type: "int"}
-	a, err := s.CreateMappings(l[0].Id, mapping)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for i := range a {
-		log.Printf("%+v", a[i])
-	}
-	err = s.RemoveMappings(l[0].Id, []string{"name"})
-	if err != nil {
-		log.Fatal(err)
-	}
-	a, err = s.CreateMappings(l[0].Id, mapping)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for i := range a {
-		log.Printf("%+v", a[i])
-	}
-	readMappings, err := s.GetMappings(l[0].Id)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("%+v", readMappings)
-	err = s.CreateExtraVariables(l[0].Id, map[string]string{"name": "Andres"})
-	if err != nil {
-		log.Fatal(err)
-	}
-	readExtraVariables, err := s.GetExtraVariables(l[0].Id)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("%+v", readExtraVariables)
-	cf := make(map[string]csv2json.CalculatedField)
-	cf["test"] = csv2json.CalculatedField{
-		Property: "cf.test",
-		Kind:     "application",
-		Format:   "record",
-		Type:     "int",
-		Location: "record",
-	}
-	err = s.CreateCalculatedFields(l[0].Id, cf)
-	if err != nil {
-		log.Fatal(err)
-	}
-	readCalculatedFields, err := s.GetCalculatedFields(l[0].Id)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("%+v", readCalculatedFields)
-	for _, p := range l {
-		log.Printf("%+v", p)
-		err = s.RemoveProject(p.Id)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
+	return r.Run()
 }

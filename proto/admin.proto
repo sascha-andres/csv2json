@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/sascha-andres/csv2json/admin";
+option go_package = "github.com/sascha-andres/csv2json/pb";
 
 // Administrative tasks in this service
 service AdminService {
