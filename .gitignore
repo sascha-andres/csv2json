@@ -111,3 +111,5 @@ dist/
 # Don't ignore the signatures directory itself, but ignore the CLA signatures file
 # as it will be managed by the CLA Assistant GitHub Action
 # signatures/cla.json
+
+file-storage/

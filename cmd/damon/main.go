@@ -11,6 +11,7 @@ var (
 	port              uint
 )
 
+// init initializes the command-line flags and environment variables.
 func init() {
 	flag.SetEnvPrefix("CSV2JSON_DAEMON")
 	flag.StringVar(&storageDsn, "storage-dsn", "file:file://./file-storage", "storage dsn")
@@ -18,6 +19,7 @@ func init() {
 	flag.UintVar(&port, "port", 50501, "port to listen on")
 }
 
+// main parses flags, executes the application logic via the run function, and handles any errors by panicking.
 func main() {
 	flag.Parse()
 
@@ -26,6 +28,8 @@ func main() {
 	}
 }
 
+// run initializes a Mapper instance with provided configurations and processes CSV input into JSON format.
+// It returns an error if any step in the process fails.
 func run() error {
 	r, err := rpc.NewRpc(rpc.WithPort(port), rpc.WithStorageDsn(storageDsn), rpc.WithInterface(iface))
 	if err != nil {
