@@ -56,6 +56,23 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Printf("%+v", readExtraVariables)
+	cf := make(map[string]csv2json.CalculatedField)
+	cf["test"] = csv2json.CalculatedField{
+		Property: "cf.test",
+		Kind:     "application",
+		Format:   "record",
+		Type:     "int",
+		Location: "record",
+	}
+	err = s.CreateCalculatedFields(l[0].Id, cf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	readCalculatedFields, err := s.GetCalculatedFields(l[0].Id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("%+v", readCalculatedFields)
 	for _, p := range l {
 		log.Printf("%+v", p)
 		err = s.RemoveProject(p.Id)

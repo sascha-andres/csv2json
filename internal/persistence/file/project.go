@@ -55,6 +55,9 @@ func (s Storer) RemoveProject(id string) error {
 	if err := s.ClearExtraVariables(id); err != nil {
 		return err
 	}
+	if err := s.ClearCalculatedFields(id); err != nil {
+		return err
+	}
 	return s.bucket.Delete(context.Background(), projectPathForId(storer.Project{Id: id}))
 }
 

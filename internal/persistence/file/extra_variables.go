@@ -47,7 +47,7 @@ func (s Storer) ClearExtraVariables(projectID string) error {
 	return s.bucket.Delete(context.Background(), getExtraVariablesPathForProject(projectID))
 }
 
-// loadMappings deserializes mappings from file storage
+// loadExtraVariables deserializes mappings from file storage
 func (s Storer) loadExtraVariables(projectID string) (map[string]string, error) {
 	path := getExtraVariablesPathForProject(projectID)
 	ctx := context.Background()

@@ -41,5 +41,17 @@ type (
 
 		// ClearExtraVariables to clear the project from extra variables
 		ClearExtraVariables(projectID string) error
+
+		// CreateCalculatedFields to add a calculated fields to the project
+		CreateCalculatedFields(projectID string, variables map[string]csv2json.CalculatedField) error
+
+		// GetCalculatedFields to load all calculated fields
+		GetCalculatedFields(projectID string) (map[string]csv2json.CalculatedField, error)
+
+		// RemoveCalculatedFields to remove one or more calculated fields
+		RemoveCalculatedFields(projectID string, calculatedFields []string) error
+
+		// ClearCalculatedFields to clear the project from extra variables
+		ClearCalculatedFields(projectID string) error
 	}
 )
