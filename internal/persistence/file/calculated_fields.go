@@ -100,5 +100,5 @@ func (s Storer) saveCalculatedFields(id string, calculatedFields map[string]csv2
 
 // getCalculatedFieldsPathForProject returns the file storage path for mappings
 func getCalculatedFieldsPathForProject(projectId string) string {
-	return fmt.Sprintf("%s/%s.json", projectId, calculatedFieldsPathName)
+	return fmt.Sprintf("admin/projects/%s/%s.json", projectId, calculatedFieldsPathName)
 }

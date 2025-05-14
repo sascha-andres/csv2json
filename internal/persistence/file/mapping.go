@@ -107,5 +107,5 @@ func (s Storer) loadMappings(projectID string) (map[string]csv2json.ColumnConfig
 
 // getMappingPathForProject returns the file storage path for mappings
 func getMappingPathForProject(projectId string) string {
-	return fmt.Sprintf("%s/%s.json", projectId, mappingsPathName)
+	return fmt.Sprintf("admin/projects/%s/%s.json", projectId, mappingsPathName)
 }

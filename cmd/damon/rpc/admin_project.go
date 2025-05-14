@@ -11,8 +11,22 @@ import (
 	"github.com/sascha-andres/csv2json/storer"
 )
 
+// ListProjects returns all known projects
 func (s *adminServer) ListProjects(_ context.Context, _ *pb.ListProjectsRequest) (*pb.ListProjectsResponse, error) {
-	return nil, nil
+	projects, err := s.storage.ListProjects()
+	if err != nil {
+		return &pb.ListProjectsResponse{Errors: []*pb.Error{{Message: err.Error(), Severity: pb.Severity_CRITICAL}}}, nil
+	}
+	resp := &pb.ListProjectsResponse{}
+	resp.Projects = make([]*pb.ListProjectData, 0)
+	for _, project := range projects {
+		resp.Projects = append(resp.Projects, &pb.ListProjectData{
+			Id:          project.Id,
+			Name:        project.Name,
+			Description: project.Description,
+		})
+	}
+	return resp, nil
 }
 
 // RemoveProject and all related data

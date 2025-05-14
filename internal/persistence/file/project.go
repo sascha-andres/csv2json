@@ -17,7 +17,7 @@ import (
 func (s Storer) ListProjects() ([]storer.Project, error) {
 	iter := s.bucket.List(&blob.ListOptions{
 		Delimiter: "/",
-		Prefix:    "projects/",
+		Prefix:    "admin/projects/",
 	})
 	result := make([]storer.Project, 0)
 	ctx := context.Background()
@@ -29,7 +29,7 @@ func (s Storer) ListProjects() ([]storer.Project, error) {
 		if err != nil {
 			return nil, err
 		}
-		reader, err := s.bucket.NewReader(ctx, obj.Key, nil)
+		reader, err := s.bucket.NewReader(ctx, fmt.Sprintf("/%sproject.json", obj.Key), nil)
 		if err != nil {
 			return nil, err
 		}
@@ -72,6 +72,9 @@ func (s Storer) RemoveProject(id string) []error {
 	if err := s.bucket.Delete(context.Background(), projectPathForId(storer.Project{Id: id})); err != nil {
 		result = append(result, err)
 	}
+	if err := s.bucket.Delete(context.Background(), fmt.Sprintf("admin/projects/%s", id)); err != nil {
+		result = append(result, err)
+	}
 	return result
 }
 
@@ -94,5 +97,5 @@ func (s Storer) CreateProject(p storer.Project) error {
 
 // projectPathForId returns the project path in storage
 func projectPathForId(p storer.Project) string {
-	return fmt.Sprintf("%s/project.json", p.Id)
+	return fmt.Sprintf("admin/projects/%s/project.json", p.Id)
 }

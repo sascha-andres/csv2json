@@ -98,5 +98,5 @@ func (s Storer) saveExtraVariables(id string, variables map[string]string) error
 
 // getExtraVariablesPathForProject returns the file storage path for mappings
 func getExtraVariablesPathForProject(projectId string) string {
-	return fmt.Sprintf("%s/%s.json", projectId, extraVariablesPathName)
+	return fmt.Sprintf("admin/projects/%s/%s.json", projectId, extraVariablesPathName)
 }
