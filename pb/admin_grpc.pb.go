@@ -30,6 +30,7 @@ const (
 	AdminService_ListExtraVariables_FullMethodName          = "/AdminService/ListExtraVariables"
 	AdminService_AddOrUpdateCalculatedFields_FullMethodName = "/AdminService/AddOrUpdateCalculatedFields"
 	AdminService_RemoveCalculatedFields_FullMethodName      = "/AdminService/RemoveCalculatedFields"
+	AdminService_ListCalculatedFields_FullMethodName        = "/AdminService/ListCalculatedFields"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -60,6 +61,8 @@ type AdminServiceClient interface {
 	AddOrUpdateCalculatedFields(ctx context.Context, in *AddOrUpdateCalculatedFieldsRequest, opts ...grpc.CallOption) (*AddOrUpdateCalculatedFieldsResponse, error)
 	// Remove one or more calculated fields
 	RemoveCalculatedFields(ctx context.Context, in *RemoveCalculatedFieldsRequest, opts ...grpc.CallOption) (*RemoveCalculatedFieldsResponse, error)
+	// List calulated fields for projects
+	ListCalculatedFields(ctx context.Context, in *ListCalculatedFieldsRequest, opts ...grpc.CallOption) (*ListCalculatedFieldsResponse, error)
 }
 
 type adminServiceClient struct {
@@ -180,6 +183,16 @@ func (c *adminServiceClient) RemoveCalculatedFields(ctx context.Context, in *Rem
 	return out, nil
 }
 
+func (c *adminServiceClient) ListCalculatedFields(ctx context.Context, in *ListCalculatedFieldsRequest, opts ...grpc.CallOption) (*ListCalculatedFieldsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListCalculatedFieldsResponse)
+	err := c.cc.Invoke(ctx, AdminService_ListCalculatedFields_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdminServiceServer is the server API for AdminService service.
 // All implementations must embed UnimplementedAdminServiceServer
 // for forward compatibility.
@@ -208,6 +221,8 @@ type AdminServiceServer interface {
 	AddOrUpdateCalculatedFields(context.Context, *AddOrUpdateCalculatedFieldsRequest) (*AddOrUpdateCalculatedFieldsResponse, error)
 	// Remove one or more calculated fields
 	RemoveCalculatedFields(context.Context, *RemoveCalculatedFieldsRequest) (*RemoveCalculatedFieldsResponse, error)
+	// List calulated fields for projects
+	ListCalculatedFields(context.Context, *ListCalculatedFieldsRequest) (*ListCalculatedFieldsResponse, error)
 	mustEmbedUnimplementedAdminServiceServer()
 }
 
@@ -250,6 +265,9 @@ func (UnimplementedAdminServiceServer) AddOrUpdateCalculatedFields(context.Conte
 }
 func (UnimplementedAdminServiceServer) RemoveCalculatedFields(context.Context, *RemoveCalculatedFieldsRequest) (*RemoveCalculatedFieldsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveCalculatedFields not implemented")
+}
+func (UnimplementedAdminServiceServer) ListCalculatedFields(context.Context, *ListCalculatedFieldsRequest) (*ListCalculatedFieldsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListCalculatedFields not implemented")
 }
 func (UnimplementedAdminServiceServer) mustEmbedUnimplementedAdminServiceServer() {}
 func (UnimplementedAdminServiceServer) testEmbeddedByValue()                      {}
@@ -470,6 +488,24 @@ func _AdminService_RemoveCalculatedFields_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminService_ListCalculatedFields_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCalculatedFieldsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).ListCalculatedFields(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_ListCalculatedFields_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).ListCalculatedFields(ctx, req.(*ListCalculatedFieldsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdminService_ServiceDesc is the grpc.ServiceDesc for AdminService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -520,6 +556,10 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveCalculatedFields",
 			Handler:    _AdminService_RemoveCalculatedFields_Handler,
+		},
+		{
+			MethodName: "ListCalculatedFields",
+			Handler:    _AdminService_ListCalculatedFields_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

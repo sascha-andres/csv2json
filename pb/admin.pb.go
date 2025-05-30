@@ -2004,7 +2004,7 @@ const file_admin_proto_rawDesc = "" +
 	"\bLocation\x12\n" +
 	"\n" +
 	"\x06RECORD\x10\x00\x12\f\n" +
-	"\bDOCUMENT\x10\x012\xdc\x06\n" +
+	"\bDOCUMENT\x10\x012\xb3\a\n" +
 	"\fAdminService\x12@\n" +
 	"\rCreateProject\x12\x15.CreateProjectRequest\x1a\x16.CreateProjectResponse\"\x00\x12@\n" +
 	"\rRemoveProject\x12\x15.RemoveProjectRequest\x1a\x16.RemoveProjectResponse\"\x00\x12=\n" +
@@ -2016,7 +2016,8 @@ const file_admin_proto_rawDesc = "" +
 	"\x13RemoveExtraVariable\x12\x1b.RemoveExtraVariableRequest\x1a\x1c.RemoveExtraVariableResponse\"\x00\x12O\n" +
 	"\x12ListExtraVariables\x12\x1a.ListExtraVariablesRequest\x1a\x1b.ListExtraVariablesResponse\"\x00\x12j\n" +
 	"\x1bAddOrUpdateCalculatedFields\x12#.AddOrUpdateCalculatedFieldsRequest\x1a$.AddOrUpdateCalculatedFieldsResponse\"\x00\x12[\n" +
-	"\x16RemoveCalculatedFields\x12\x1e.RemoveCalculatedFieldsRequest\x1a\x1f.RemoveCalculatedFieldsResponse\"\x00B&Z$github.com/sascha-andres/csv2json/pbb\x06proto3"
+	"\x16RemoveCalculatedFields\x12\x1e.RemoveCalculatedFieldsRequest\x1a\x1f.RemoveCalculatedFieldsResponse\"\x00\x12U\n" +
+	"\x14ListCalculatedFields\x12\x1c.ListCalculatedFieldsRequest\x1a\x1d.ListCalculatedFieldsResponse\"\x00B&Z$github.com/sascha-andres/csv2json/pbb\x06proto3"
 
 var (
 	file_admin_proto_rawDescOnce sync.Once
@@ -2118,19 +2119,21 @@ var file_admin_proto_depIdxs = []int32{
 	23, // 39: AdminService.ListExtraVariables:input_type -> ListExtraVariablesRequest
 	28, // 40: AdminService.AddOrUpdateCalculatedFields:input_type -> AddOrUpdateCalculatedFieldsRequest
 	30, // 41: AdminService.RemoveCalculatedFields:input_type -> RemoveCalculatedFieldsRequest
-	8,  // 42: AdminService.CreateProject:output_type -> CreateProjectResponse
-	10, // 43: AdminService.RemoveProject:output_type -> RemoveProjectResponse
-	13, // 44: AdminService.ListProjects:output_type -> ListProjectsResponse
-	16, // 45: AdminService.AddOrUpdateMapping:output_type -> AddOrUpdateMappingResponse
-	20, // 46: AdminService.RemoveMapping:output_type -> RemoveMappingResponse
-	18, // 47: AdminService.ListMappings:output_type -> ListMappingsResponse
-	22, // 48: AdminService.AddExtraVariable:output_type -> AddExtraVariableResponse
-	26, // 49: AdminService.RemoveExtraVariable:output_type -> RemoveExtraVariableResponse
-	24, // 50: AdminService.ListExtraVariables:output_type -> ListExtraVariablesResponse
-	29, // 51: AdminService.AddOrUpdateCalculatedFields:output_type -> AddOrUpdateCalculatedFieldsResponse
-	31, // 52: AdminService.RemoveCalculatedFields:output_type -> RemoveCalculatedFieldsResponse
-	42, // [42:53] is the sub-list for method output_type
-	31, // [31:42] is the sub-list for method input_type
+	32, // 42: AdminService.ListCalculatedFields:input_type -> ListCalculatedFieldsRequest
+	8,  // 43: AdminService.CreateProject:output_type -> CreateProjectResponse
+	10, // 44: AdminService.RemoveProject:output_type -> RemoveProjectResponse
+	13, // 45: AdminService.ListProjects:output_type -> ListProjectsResponse
+	16, // 46: AdminService.AddOrUpdateMapping:output_type -> AddOrUpdateMappingResponse
+	20, // 47: AdminService.RemoveMapping:output_type -> RemoveMappingResponse
+	18, // 48: AdminService.ListMappings:output_type -> ListMappingsResponse
+	22, // 49: AdminService.AddExtraVariable:output_type -> AddExtraVariableResponse
+	26, // 50: AdminService.RemoveExtraVariable:output_type -> RemoveExtraVariableResponse
+	24, // 51: AdminService.ListExtraVariables:output_type -> ListExtraVariablesResponse
+	29, // 52: AdminService.AddOrUpdateCalculatedFields:output_type -> AddOrUpdateCalculatedFieldsResponse
+	31, // 53: AdminService.RemoveCalculatedFields:output_type -> RemoveCalculatedFieldsResponse
+	33, // 54: AdminService.ListCalculatedFields:output_type -> ListCalculatedFieldsResponse
+	43, // [43:55] is the sub-list for method output_type
+	31, // [31:43] is the sub-list for method input_type
 	31, // [31:31] is the sub-list for extension type_name
 	31, // [31:31] is the sub-list for extension extendee
 	0,  // [0:31] is the sub-list for field type_name

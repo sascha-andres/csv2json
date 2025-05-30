@@ -36,6 +36,9 @@ service AdminService {
 
   // Remove one or more calculated fields
   rpc RemoveCalculatedFields(RemoveCalculatedFieldsRequest) returns (RemoveCalculatedFieldsResponse) {};
+
+  // List calulated fields for projects
+  rpc ListCalculatedFields(ListCalculatedFieldsRequest) returns (ListCalculatedFieldsResponse) {};
 }
 
 //---------- commonly used messages ----------//
