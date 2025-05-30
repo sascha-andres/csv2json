@@ -64,6 +64,10 @@ func (s Storer) loadExtraVariables(projectID string) (map[string]string, error) 
 	if err != nil {
 		return nil, err
 	}
+	defer func() {
+		_ = reader.Close()
+		// TODO logging
+	}()
 	var buf bytes.Buffer
 	_, err = reader.WriteTo(&buf)
 	if err != nil {
