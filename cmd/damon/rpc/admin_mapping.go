@@ -20,6 +20,9 @@ func (s *adminServer) AddOrUpdateMapping(ctx context.Context, req *pb.AddOrUpdat
 		return &pb.AddOrUpdateMappingResponse{Errors: []*pb.Error{{Message: err.Error(), Severity: pb.Severity_CRITICAL}}}, nil
 	}
 	res := &pb.AddOrUpdateMappingResponse{}
+	if res.ActionsTaken == nil {
+		res.ActionsTaken = make(map[string]pb.ActionTaken)
+	}
 	for key, taken := range at {
 		res.ActionsTaken[key] = taken
 	}

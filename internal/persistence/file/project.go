@@ -29,10 +29,24 @@ func (s Storer) ListProjects() ([]storer.Project, error) {
 		if err != nil {
 			return nil, err
 		}
-		reader, err := s.bucket.NewReader(ctx, fmt.Sprintf("/%sproject.json", obj.Key), nil)
+		projectJson := fmt.Sprintf("/%sproject.json", obj.Key)
+		e, err := s.bucket.Exists(ctx, projectJson)
 		if err != nil {
 			return nil, err
 		}
+		if !e {
+			continue
+		}
+		reader, err := s.bucket.NewReader(ctx, projectJson, nil)
+		if err != nil {
+			return nil, err
+		}
+		defer func() {
+			err := reader.Close()
+			if err != nil {
+				// TODO logging
+			}
+		}()
 		var buf bytes.Buffer
 		_, err = reader.WriteTo(&buf)
 		if err != nil {
